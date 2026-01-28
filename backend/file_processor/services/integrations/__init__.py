@@ -49,6 +49,17 @@ from .compliance import (
     FederatedIdentityConfig,
     ComplianceService
 )
+from .user_experience import (
+    SharePermission,
+    ShareLinkStatus,
+    ShareLinkConfig,
+    FileVersion,
+    Comment,
+    CollaborationSession,
+    SharingService,
+    VersioningService,
+    CollaborationService
+)
 
 # Platform connectors
 from .salesforce import SalesforceConnector
@@ -102,6 +113,16 @@ __all__ = [
     'WatermarkConfig',
     'FederatedIdentityConfig',
     'ComplianceService',
+    # User Experience
+    'SharePermission',
+    'ShareLinkStatus',
+    'ShareLinkConfig',
+    'FileVersion',
+    'Comment',
+    'CollaborationSession',
+    'SharingService',
+    'VersioningService',
+    'CollaborationService',
     # Connectors
     'SalesforceConnector',
     'Dynamics365Connector',
