@@ -132,9 +132,9 @@ DATABASE_URL=postgresql://user:password@hostname:5432/fileforge
 REDIS_URL=redis://:password@hostname:6379/0
 
 # Security
-SECRET_KEY=your-256-bit-secret-key
-JWT_SECRET_KEY=your-jwt-secret-key
-ENCRYPTION_KEY=your-fernet-key
+SECRET_KEY=change-this-in-production-256-bit-secret
+JWT_SECRET_KEY=change-this-in-production-jwt-secret
+ENCRYPTION_KEY=change-this-in-production-fernet-key
 
 # Application
 DEBUG=false
@@ -142,13 +142,13 @@ ALLOWED_ORIGINS=https://yourdomain.com
 
 # Storage (S3 compatible)
 S3_BUCKET_NAME=fileforge-uploads
-S3_ACCESS_KEY=your-access-key
-S3_SECRET_KEY=your-secret-key
+S3_ACCESS_KEY=$AWS_ACCESS_KEY_ID
+S3_SECRET_KEY=$AWS_SECRET_ACCESS_KEY
 S3_REGION=us-east-1
 S3_ENDPOINT=https://s3.amazonaws.com
 
 # Monitoring
-SENTRY_DSN=https://your-sentry-dsn
+SENTRY_DSN=$SENTRY_DSN
 LOG_LEVEL=INFO
 ```
 

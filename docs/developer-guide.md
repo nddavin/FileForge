@@ -66,7 +66,7 @@ FileForge/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-org/fileforge.git
+   git clone https://github.com/fileforge/fileforge.git
    cd fileforge
    ```
 
@@ -653,13 +653,13 @@ DATABASE_URL=postgresql://fileforge:secure_password@db-host:5432/fileforge
 # SECURITY (Generate secure keys!)
 # ===========================================
 # Generate with: python -c "import secrets; print(secrets.token_hex(32))"
-SECRET_KEY=your-256-bit-secret-key-min-32-chars
+SECRET_KEY=$SECRET_KEY  # Generate: python -c "import secrets; print(secrets.token_hex(32))"
 
 # Generate with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-ENCRYPTION_KEY=your-fernet-encryption-key
+ENCRYPTION_KEY=$ENCRYPTION_KEY  # Generate: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 
 # Generate with: python -c "import secrets; print(secrets.token_hex(32))"
-JWT_SECRET_KEY=your-jwt-secret-key
+JWT_SECRET_KEY=$JWT_SECRET_KEY  # Generate: python -c "import secrets; print(secrets.token_hex(32))"
 
 # Password hashing rounds (12 is recommended)
 BCRYPT_ROUNDS=12
@@ -706,22 +706,22 @@ BACKUP_INTERVAL_HOURS=24
 # MONITORING
 # ===========================================
 LOG_LEVEL=INFO
-SENTRY_DSN=https://your-sentry-dsn
+SENTRY_DSN=$SENTRY_DSN
 
 # ===========================================
 # EXTERNAL SERVICES (Optional)
 # ===========================================
 # AWS S3
-AWS_ACCESS_KEY_ID=your-access-key
-AWS_SECRET_ACCESS_KEY=your-secret-key
+AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 AWS_REGION=us-east-1
-AWS_BUCKET_NAME=your-bucket-name
+AWS_BUCKET_NAME=fileforge-uploads
 
 # Email
 SMTP_SERVER=smtp.yourprovider.com
 SMTP_PORT=587
-SMTP_USER=your-email
-SMTP_PASSWORD=your-app-password
+SMTP_USER=$SMTP_USER
+SMTP_PASSWORD=$SMTP_PASSWORD
 ```
 
 ---
@@ -943,14 +943,14 @@ POST /api/v1/integrations/connect/salesforce
 # Connect Slack
 POST /api/v1/integrations/connect/slack
 {
-    "bot_token": "xoxb-your-bot-token"
+    "bot_token": "$SLACK_BOT_TOKEN"
 }
 
 # Connect DocuSign
 POST /api/v1/integrations/connect/docusign
 {
-    "integration_key": "your-integration-key",
-    "secret_key": "your-secret-key"
+    "integration_key": "$DOCUSIGN_KEY",
+    "secret_key": "$DOCUSIGN_SECRET"
 }
 ```
 

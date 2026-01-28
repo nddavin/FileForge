@@ -188,10 +188,10 @@ All security-relevant actions are logged:
 # ============================================
 
 # Required - Encryption Keys
-SECRET_KEY=your-256-bit-secret-key-here
-JWT_SECRET_KEY=your-jwt-secret-key-here
-ENCRYPTION_KEY=your-fernet-encryption-key
-AES_ENCRYPTION_KEY=your-aes-256-key-here
+SECRET_KEY=$SECRET_KEY  # Generate: python -c "import secrets; print(secrets.token_hex(32))"
+JWT_SECRET_KEY=$JWT_SECRET_KEY  # Generate: python -c "import secrets; print(secrets.token_hex(32))"
+ENCRYPTION_KEY=$ENCRYPTION_KEY  # Generate: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+AES_ENCRYPTION_KEY=$AES_ENCRYPTION_KEY  # Generate: python -c "import secrets; print(secrets.token_hex(32))"
 
 # Required - Database Security
 DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
@@ -235,7 +235,7 @@ COMPLIANCE_FRAMEWORK=GDPR,HIPAA,SOX
 
 # Optional - Vault Integration
 VAULT_ENABLED=false
-VAULT_ADDR=https://vault.example.com
+VAULT_ADDR=https://vault.fileforge.io
 VAULT_TOKEN=your-vault-token
 
 # Optional - External Scanning
@@ -268,7 +268,7 @@ CLAMAV_PORT=3310
    
    app.add_middleware(
        TrustedHostMiddleware,
-       allowed_hosts=["example.com", "*.example.com"]
+       allowed_hosts=["fileforge.io", "*.fileforge.io"]
    )
    ```
 
