@@ -37,6 +37,18 @@ from .ha_service import (
     HAClusterService,
     DnsFailoverService
 )
+from .compliance import (
+    ComplianceStandard,
+    DataClassification,
+    RetentionPolicyAction,
+    RetentionPolicy,
+    ConsentRecord,
+    AuditLogEntry,
+    DLPConfig,
+    WatermarkConfig,
+    FederatedIdentityConfig,
+    ComplianceService
+)
 
 # Platform connectors
 from .salesforce import SalesforceConnector
@@ -79,6 +91,17 @@ __all__ = [
     'HAMetrics',
     'HAClusterService',
     'DnsFailoverService',
+    # Compliance
+    'ComplianceStandard',
+    'DataClassification',
+    'RetentionPolicyAction',
+    'RetentionPolicy',
+    'ConsentRecord',
+    'AuditLogEntry',
+    'DLPConfig',
+    'WatermarkConfig',
+    'FederatedIdentityConfig',
+    'ComplianceService',
     # Connectors
     'SalesforceConnector',
     'Dynamics365Connector',
