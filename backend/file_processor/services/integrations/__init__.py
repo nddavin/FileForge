@@ -27,6 +27,16 @@ from .ha import (
     ClusterConfig,
     ClusterManager
 )
+from .ha_service import (
+    NodeState,
+    ReplicationMode,
+    ClusterNode,
+    ReplicationConfig,
+    FailoverPolicy,
+    HAMetrics,
+    HAClusterService,
+    DnsFailoverService
+)
 
 # Platform connectors
 from .salesforce import SalesforceConnector
@@ -60,6 +70,15 @@ __all__ = [
     'HighAvailabilityMixin',
     'ClusterConfig',
     'ClusterManager',
+    # HA Service
+    'NodeState',
+    'ReplicationMode',
+    'ClusterNode',
+    'ReplicationConfig',
+    'FailoverPolicy',
+    'HAMetrics',
+    'HAClusterService',
+    'DnsFailoverService',
     # Connectors
     'SalesforceConnector',
     'Dynamics365Connector',
