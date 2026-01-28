@@ -60,6 +60,25 @@ from .user_experience import (
     VersioningService,
     CollaborationService
 )
+from .monitoring import (
+    AlertSeverity,
+    AlertStatus,
+    AlertChannel,
+    MetricType,
+    AlertRule,
+    Alert,
+    MetricSample,
+    CapacityMetrics,
+    CostMetrics,
+    AnomalyDetection,
+    DetectedAnomaly,
+    AlertingService,
+    MetricsService,
+    CapacityPlanningService,
+    CostAnalyticsService,
+    AnomalyDetectionService,
+    MonitoringOrchestrator
+)
 
 # Platform connectors
 from .salesforce import SalesforceConnector
@@ -123,6 +142,24 @@ __all__ = [
     'SharingService',
     'VersioningService',
     'CollaborationService',
+    # Monitoring
+    'AlertSeverity',
+    'AlertStatus',
+    'AlertChannel',
+    'MetricType',
+    'AlertRule',
+    'Alert',
+    'MetricSample',
+    'CapacityMetrics',
+    'CostMetrics',
+    'AnomalyDetection',
+    'DetectedAnomaly',
+    'AlertingService',
+    'MetricsService',
+    'CapacityPlanningService',
+    'CostAnalyticsService',
+    'AnomalyDetectionService',
+    'MonitoringOrchestrator',
     # Connectors
     'SalesforceConnector',
     'Dynamics365Connector',
