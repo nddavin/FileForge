@@ -844,3 +844,191 @@ services:
 | [File Format Support](file-format-support.md) | Supported file formats and processing |
 | [Processing Pipeline](processing-pipeline.md) | Pipeline architecture and flow |
 | [API Documentation](/docs) | OpenAPI documentation (when running) |
+
+---
+
+## 🔗 Enterprise Integrations
+
+FileForge supports seamless integrations with major enterprise systems including CRM, ERP, e-signature, and collaboration platforms.
+
+### Available Integrations
+
+| Integration | Type | Authentication | Description |
+|-------------|------|----------------|-------------|
+| Salesforce CRM | CRM | OAuth2 | Create leads, contacts, opportunities, upload documents |
+| Microsoft Dynamics 365 | CRM | OAuth2 | Manage contacts, accounts, opportunities |
+| DocuSign | E-Signature | OAuth2 | Send documents for e-signature, track status |
+| Slack | Collaboration | Bearer Token | Send messages, upload files to channels |
+| Microsoft Teams | Collaboration | OAuth2 | Send messages, upload files to chats/channels |
+| SAP ERP | ERP | Basic Auth | Create materials, purchase orders, documents |
+| Oracle ERP Cloud | ERP | OAuth2 | Create suppliers, invoices, upload documents |
+
+### Webhook System
+
+FileForge provides a comprehensive webhook system for real-time event notifications:
+
+```python
+from backend.file_processor.services.integrations import (
+    WebhookService,
+    WebhookPayload,
+    WebhookEventType
+)
+
+# Create webhook service
+webhook_service = WebhookService()
+
+# Subscribe to events
+subscription = webhook_service.subscribe(
+    name="My Webhook",
+    url="https://myapp.com/webhook",
+    events=[WebhookEventType.FILE_PROCESSED]
+)
+
+# Emit events
+payload = WebhookPayload(
+    event_type=WebhookEventType.FILE_PROCESSED,
+    data={"file_id": "123", "status": "completed"}
+)
+webhook_service.emit(payload)
+```
+
+#### Webhook Events
+
+| Event Type | Description |
+|------------|-------------|
+| `file.uploaded` | Triggered when a file is uploaded |
+| `file.processed` | Triggered when file processing completes |
+| `file.deleted` | Triggered when a file is deleted |
+| `file.classified` | Triggered when file classification completes |
+| `workflow.started` | Triggered when a workflow starts |
+| `workflow.completed` | Triggered when a workflow completes |
+| `workflow.failed` | Triggered when a workflow fails |
+| `integration.connected` | Triggered when an integration connects |
+| `integration.error` | Triggered when an integration errors |
+
+### API Endpoints
+
+#### Webhook Management
+
+```bash
+# Create webhook
+POST /api/v1/integrations/webhooks
+{
+    "name": "My Webhook",
+    "url": "https://example.com/webhook",
+    "events": ["file.processed", "workflow.completed"]
+}
+
+# List webhooks
+GET /api/v1/integrations/webhooks
+
+# Test webhook
+POST /api/v1/integrations/webhooks/{id}/test
+
+# Get delivery history
+GET /api/v1/integrations/webhooks/{id}/deliveries
+```
+
+#### Connect Integrations
+
+```bash
+# Connect Salesforce
+POST /api/v1/integrations/connect/salesforce
+{
+    "client_id": "your-client-id",
+    "client_secret": "your-client-secret",
+    "instance_url": "https://login.salesforce.com"
+}
+
+# Connect Slack
+POST /api/v1/integrations/connect/slack
+{
+    "bot_token": "xoxb-your-bot-token"
+}
+
+# Connect DocuSign
+POST /api/v1/integrations/connect/docusign
+{
+    "integration_key": "your-integration-key",
+    "secret_key": "your-secret-key"
+}
+```
+
+### Using Connectors Programmatically
+
+```python
+from backend.file_processor.services.integrations import (
+    SalesforceConnector,
+    IntegrationConfig,
+    IntegrationType,
+    AuthenticationType
+)
+
+# Create configuration
+config = IntegrationConfig(
+    integration_type=IntegrationType.CRM,
+    auth_type=AuthenticationType.OAUTH2,
+    base_url="https://login.salesforce.com",
+    credentials={
+        "client_id": "your-client-id",
+        "client_secret": "your-client-secret"
+    }
+)
+
+# Create connector
+connector = SalesforceConnector(config)
+
+# Test connection
+result = connector.test_connection()
+if result.success:
+    # Create a lead
+    lead_result = connector.create_lead({
+        "FirstName": "John",
+        "LastName": "Doe",
+        "Email": "john@example.com",
+        "Company": "Acme Inc"
+    })
+```
+
+### Adding Custom Integrations
+
+Create a new connector by extending `IntegrationBase`:
+
+```python
+from backend.file_processor.services.integrations import (
+    IntegrationBase,
+    IntegrationConfig,
+    IntegrationResult,
+    IntegrationType,
+    AuthenticationType
+)
+
+class CustomConnector(IntegrationBase):
+    """Custom integration connector"""
+    
+    @property
+    def integration_name(self) -> str:
+        return "Custom Integration"
+    
+    @property
+    def integration_slug(self) -> str:
+        return "custom"
+    
+    def test_connection(self) -> IntegrationResult:
+        # Test connection logic
+        return IntegrationResult(success=True)
+    
+    def send(self, endpoint: str, data: dict, method: str = "POST") -> IntegrationResult:
+        # Send data to integration
+        return IntegrationResult(success=True, data={})
+```
+
+### Security Best Practices
+
+1. **Store credentials securely** - Use environment variables or secret management
+2. **Validate webhook signatures** - Always verify incoming webhooks
+3. **Use HTTPS** - All integrations should use TLS
+4. **Implement rate limiting** - Respect API rate limits
+5. **Handle errors gracefully** - Implement proper error handling and retries
+
+---
