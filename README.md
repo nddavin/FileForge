@@ -156,6 +156,13 @@ A production-ready, enterprise-grade file processing system with advanced securi
 | **File Format Support** | Comprehensive format matrix, processing capabilities | [docs/file-format-support.md](docs/file-format-support.md) |
 | **Processing Pipeline** | Pipeline architecture, workflows, error handling | [docs/processing-pipeline.md](docs/processing-pipeline.md) |
 | **API Documentation** | OpenAPI/Swagger docs (available at /docs when running) | [docs/]() |
+| **Deployment Guide** | Production deployment for Docker, K8s, cloud providers | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) |
+| **Operations Runbook** | Incident response, monitoring, disaster recovery | [docs/RUNBOOK.md](docs/RUNBOOK.md) |
+| **Privacy Policy** | GDPR-compliant data collection and usage | [docs/PRIVACY_POLICY.md](docs/PRIVACY_POLICY.md) |
+| **Data Processing Addendum** | DPA template for church data protection | [docs/DATA_PROCESSING_ADDENDUM.md](docs/DATA_PROCESSING_ADDENDUM.md) |
+| **Contributing Guide** | PR guidelines, code standards, development workflow | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) |
+| **Code of Conduct** | Community standards and enforcement | [docs/CODE_OF_CONDUCT.md](docs/CODE_OF_CONDUCT.md) |
+| **Architecture Decision Records** | Technical design decisions and rationale | [docs/adrs/](docs/adrs/) |
 
 ---
 
@@ -176,7 +183,7 @@ A production-ready, enterprise-grade file processing system with advanced securi
 | **GoBD** | ✅ Ready | German accounting standards |
 | **SOC 2** | ✅ Ready | Security, availability, confidentiality |
 
-**Full security documentation**: [docs/security-guide.md](docs/security-guide.md)
+**Security documentation**: [docs/SECURITY.md](docs/SECURITY.md) (overview) | [docs/security-guide.md](docs/security-guide.md) (detailed)
 
 ---
 
@@ -319,7 +326,7 @@ kubectl get hpa
 - **Google Cloud**: Cloud Run, GKE
 - **Azure**: Container Instances, AKS
 
-**Full deployment guide**: [docs/developer-guide.md](docs/developer-guide.md#operations--deployment)
+**Full deployment guide**: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 
 ---
 
@@ -390,9 +397,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### Documentation
 - 📖 [User Guide](docs/user-guide.md)
 - 🛠️ [Developer Guide](docs/developer-guide.md)
-- 🔒 [Security Guide](docs/security-guide.md)
+- 🔒 [Security Overview](docs/SECURITY.md) | [Security Guide](docs/security-guide.md)
 - 📋 [File Format Support](docs/file-format-support.md)
 - 🔄 [Processing Pipeline](docs/processing-pipeline.md)
+- 🚀 [Deployment Guide](docs/DEPLOYMENT.md)
+- 📊 [Operations Runbook](docs/RUNBOOK.md)
+- 📜 [Privacy Policy](docs/PRIVACY_POLICY.md)
+- 📑 [Data Processing Addendum](docs/DATA_PROCESSING_ADDENDUM.md)
+- 🤝 [Contributing Guide](docs/CONTRIBUTING.md)
+- 👥 [Code of Conduct](docs/CODE_OF_CONDUCT.md)
+- 🏛️ [Architecture Decision Records](docs/adrs/)
 
 ### Support Channels
 - 📧 Email: support@fileforge-app.com
