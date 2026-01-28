@@ -3,10 +3,12 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from typing import List, Optional
+from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
-from app.models.user import User
-from app.models.file import File
+from ...api.deps import get_current_user
+from ...core.dependencies import get_db
+from ...models.user import User
+from ...models.file import File
 
 router = APIRouter()
 
