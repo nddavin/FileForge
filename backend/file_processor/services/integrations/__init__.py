@@ -15,6 +15,18 @@ from .base import (
     IntegrationType,
     AuthenticationType
 )
+from .ha import (
+    HealthStatus,
+    CircuitState,
+    Endpoint,
+    FailoverConfig,
+    HAResult,
+    CircuitBreaker,
+    LoadBalancer,
+    HighAvailabilityMixin,
+    ClusterConfig,
+    ClusterManager
+)
 
 # Platform connectors
 from .salesforce import SalesforceConnector
@@ -37,6 +49,17 @@ __all__ = [
     'IntegrationResult',
     'IntegrationType',
     'AuthenticationType',
+    # High Availability
+    'HealthStatus',
+    'CircuitState',
+    'Endpoint',
+    'FailoverConfig',
+    'HAResult',
+    'CircuitBreaker',
+    'LoadBalancer',
+    'HighAvailabilityMixin',
+    'ClusterConfig',
+    'ClusterManager',
     # Connectors
     'SalesforceConnector',
     'Dynamics365Connector',

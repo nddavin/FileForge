@@ -1032,3 +1032,164 @@ class CustomConnector(IntegrationBase):
 5. **Handle errors gracefully** - Implement proper error handling and retries
 
 ---
+
+## 🛡️ High Availability & Resilience
+
+FileForge integrations are designed for enterprise-grade 99.99% uptime with automatic failover and load balancing.
+
+### Circuit Breaker Pattern
+
+Prevents cascade failures by stopping requests to failing services:
+
+```python
+from backend.file_processor.services.integrations import (
+    CircuitBreaker,
+    FailoverConfig,
+    HighAvailabilityMixin
+)
+
+# Configure failover behavior
+config = FailoverConfig(
+    max_retries=3,
+    retry_delay_ms=1000,
+    circuit_open_after_failures=5,
+    circuit_reset_timeout_ms=30000,
+    fallback_enabled=True
+)
+
+# Add circuit breaker to connector
+class ResilientSalesforceConnector(SalesforceConnector, HighAvailabilityMixin):
+    def __init__(self, config):
+        super().__init__(config, ha_config=config)
+        self.add_circuit_breaker("salesforce")
+        
+        # Register fallback handler
+        self.register_fallback("create_lead", self.lead_creation_fallback)
+    
+    def lead_creation_fallback(self, error):
+        # Return cached data or queue for later processing
+        return {"status": "queued", "fallback": True}
+```
+
+#### Circuit Breaker States
+
+| State | Description | Behavior |
+|-------|-------------|----------|
+| CLOSED | Normal operation | Requests pass through |
+| OPEN | Failing | Requests rejected immediately |
+| HALF_OPEN | Testing recovery | Limited requests allowed |
+
+### Load Balancing
+
+Weighted round-robin load balancing across multiple endpoints:
+
+```python
+from backend.file_processor.services.integrations import Endpoint, LoadBalancer
+
+# Define endpoints with weights
+endpoints = [
+    Endpoint(url="https://na1.salesforce.com", weight=3),
+    Endpoint(url="https://na2.salesforce.com", weight=2),
+    Endpoint(url="https://eu1.salesforce.com", weight=1),
+]
+
+# Create load balancer
+lb = LoadBalancer(endpoints)
+
+# Get next healthy endpoint
+endpoint = lb.get_next()
+```
+
+### Request Retry with Exponential Backoff
+
+```python
+result = self._execute_with_ha(
+    operation="create_lead",
+    executor=lambda: self.create_lead(lead_data),
+    circuit_name="salesforce",
+    endpoint_name="salesforce_endpoints",
+    use_cache=True,
+    cache_key=f"lead_{email}"
+)
+
+if result.success:
+    print(f"Created in {result.latency_ms:.2f}ms")
+    print(f"Attempt #{result.attempt_number}")
+else:
+    print(f"Failed: {result.error}")
+```
+
+### Multi-Region Clustering
+
+Automatic failover across geographic regions:
+
+```python
+from backend.file_processor.services.integrations import ClusterConfig, ClusterManager
+
+# Configure multi-region cluster
+cluster_config = ClusterConfig(
+    region="us-east",
+    primary_region="us-east-1",
+    failover_regions=["us-west-2", "eu-west-1"],
+    health_check_interval_seconds=30,
+    failover_threshold_percent=90
+)
+
+cluster = ClusterManager(cluster_config)
+
+# Register regions
+cluster.register_region("us-east-1", HealthStatus.HEALTHY)
+cluster.register_region("us-west-2", HealthStatus.HEALTHY)
+cluster.register_region("eu-west-1", HealthStatus.DEGRADED)
+
+# Get active region (will fail over if primary is unhealthy)
+active = cluster.get_active_region()
+print(f"Active region: {active}")
+```
+
+### HA Configuration Options
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `max_retries` | 3 | Maximum retry attempts |
+| `retry_delay_ms` | 1000 | Initial delay between retries |
+| `max_retry_delay_ms` | 10000 | Maximum delay cap |
+| `exponential_base` | 2.0 | Exponential backoff multiplier |
+| `circuit_open_after_failures` | 5 | Failures before opening circuit |
+| `circuit_reset_timeout_ms` | 30000 | Time before trying half-open |
+| `fallback_enabled` | True | Enable fallback handlers |
+| `timeout_ms` | 30000 | Request timeout |
+
+### Availability Targets
+
+| Component | Availability | RTO (Recovery Time Objective) | RPO (Recovery Point Objective) |
+|-----------|--------------|-------------------------------|-------------------------------|
+| Webhook Delivery | 99.95% | < 5 minutes | < 1 minute |
+| API Connectors | 99.99% | < 1 minute | < 30 seconds |
+| Load Balancer | 99.999% | < 10 seconds | N/A |
+| Circuit Breaker | 99.999% | < 1 second | N/A |
+
+### Monitoring HA Stats
+
+```python
+# Get comprehensive HA statistics
+stats = connector.get_ha_stats()
+
+# Circuit breaker stats
+print(stats["circuits"])
+# {
+#   "salesforce": {
+#     "state": "closed",
+#     "failure_count": 2,
+#     "success_count": 150
+#   }
+# }
+
+# Load balancer stats
+print(stats["load_balancers"])
+# {
+#   "endpoints": [
+#     {"url": "https://na1.salesforce.com", "healthy": True, ...}
+#   ]
+# }
+```
