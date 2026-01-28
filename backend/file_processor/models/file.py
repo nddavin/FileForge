@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 
 from ..database import Base
 
+
 class File(Base):
     __tablename__ = "files"
 

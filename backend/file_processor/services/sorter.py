@@ -1,26 +1,27 @@
 import json
 from typing import List, Dict, Any
 
+
 class Sorter:
     """File sorting service with rule-based categorization"""
 
     def __init__(self):
         self.default_rules = [
             {
-                'name': 'Documents',
-                'condition': {'extension': ['pdf', 'docx', 'txt']},
-                'category': 'documents'
+                "name": "Documents",
+                "condition": {"extension": ["pdf", "docx", "txt"]},
+                "category": "documents",
             },
             {
-                'name': 'Images',
-                'condition': {'extension': ['jpg', 'png', 'gif']},
-                'category': 'images'
+                "name": "Images",
+                "condition": {"extension": ["jpg", "png", "gif"]},
+                "category": "images",
             },
             {
-                'name': 'Videos',
-                'condition': {'extension': ['mp4', 'avi', 'mov']},
-                'category': 'videos'
-            }
+                "name": "Videos",
+                "condition": {"extension": ["mp4", "avi", "mov"]},
+                "category": "videos",
+            },
         ]
 
     def sort_file(self, file_info: Dict[str, Any], rules: List[Dict] = None) -> str:
@@ -30,13 +31,13 @@ class Sorter:
 
         for rule in rules:
             if self._matches_rule(file_info, rule):
-                return rule['category']
+                return rule["category"]
 
-        return 'misc'
+        return "misc"
 
     def _matches_rule(self, file_info: Dict[str, Any], rule: Dict) -> bool:
         """Check if file matches a sorting rule"""
-        condition = rule.get('condition', {})
+        condition = rule.get("condition", {})
 
         for key, values in condition.items():
             if key in file_info:
@@ -54,8 +55,4 @@ class Sorter:
 
     def create_rule(self, name: str, condition: Dict, category: str) -> Dict:
         """Create a new sorting rule"""
-        return {
-            'name': name,
-            'condition': condition,
-            'category': category
-        }
+        return {"name": name, "condition": condition, "category": category}

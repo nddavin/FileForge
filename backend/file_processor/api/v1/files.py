@@ -6,6 +6,7 @@ from ...core.dependencies import get_db
 
 router = APIRouter()
 
+
 @router.get("/")
-def get_files(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+def get_files(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     return {"files": []}

@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 
 from ..database import Base
 
+
 class Rule(Base):
     __tablename__ = "rules"
 
