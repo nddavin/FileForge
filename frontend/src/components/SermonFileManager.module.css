@@ -1,0 +1,222 @@
+/* Sermon File Manager Styles */
+
+.fileManager {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.titleSection h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #212529;
+}
+
+.fileCount {
+  font-size: 13px;
+  color: #6c757d;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tab {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: #6c757d;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  background: #f1f3f5;
+}
+
+.tab.active {
+  background: #e7f5ff;
+  color: #1c7ed6;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.refreshBtn {
+  padding: 8px 16px;
+  border: 1px solid #dee2e6;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.refreshBtn:hover {
+  background: #f8f9fa;
+}
+
+/* Modal */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  width: 480px;
+  max-width: 90vw;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #6c757d;
+  cursor: pointer;
+}
+
+.modalContent {
+  padding: 20px 24px;
+}
+
+.folderList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.folderItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.folderItem:hover {
+  border-color: #adb5bd;
+  background: #f8f9fa;
+}
+
+.folderItem.selected {
+  border-color: #1c7ed6;
+  background: #e7f5ff;
+}
+
+.folderIcon {
+  font-size: 24px;
+}
+
+.folderInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.folderName {
+  font-weight: 500;
+  color: #212529;
+}
+
+.folderPath {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.newFolderInput {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.newFolderInput:focus {
+  outline: none;
+  border-color: #1c7ed6;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #e9ecef;
+}
+
+.cancelBtn {
+  padding: 10px 20px;
+  border: 1px solid #dee2e6;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.assignBtn {
+  padding: 10px 20px;
+  border: none;
+  background: #1c7ed6;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.assignBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Content Area */
+.content {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+}

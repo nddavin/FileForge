@@ -1,0 +1,343 @@
+/* Smart Sorting Rules Styles */
+
+.rulesPanel {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.title h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.ruleCount {
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.addRuleBtn {
+  padding: 10px 20px;
+  border: none;
+  background: #1c7ed6;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.addRuleBtn:hover {
+  background: #1971c2;
+}
+
+.rulesList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 48px;
+  color: #6c757d;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.emptyState p {
+  margin: 8px 0;
+}
+
+.ruleCard {
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  background: #f8f9fa;
+}
+
+.ruleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ruleName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.ruleIcon {
+  font-size: 18px;
+}
+
+.ruleActions {
+  display: flex;
+  gap: 8px;
+}
+
+.editBtn, .deleteBtn {
+  padding: 4px 12px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.editBtn {
+  color: #1c7ed6;
+}
+
+.deleteBtn {
+  color: #c92a2a;
+}
+
+.ruleConditions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.conditionLabel {
+  font-size: 12px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.conditions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.conditionBadge {
+  padding: 4px 10px;
+  background: #e7f5ff;
+  color: #1971c2;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: monospace;
+}
+
+.ruleAction {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.actionLabel {
+  font-size: 12px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.actionBadge {
+  padding: 6px 12px;
+  background: #d3f9d8;
+  color: #2b8a3e;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ruleFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #e9ecef;
+}
+
+.matchCount {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.autoApplyBadge {
+  padding: 4px 10px;
+  background: #fff3bf;
+  color: #e67700;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Builder Modal */
+.builderOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.builder {
+  background: white;
+  border-radius: 12px;
+  width: 600px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+}
+
+.builderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.builderHeader h3 {
+  margin: 0;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #6c757d;
+}
+
+.builderContent {
+  padding: 24px;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.formGroup input,
+.formGroup select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.conditionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.conditionRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.conditionRow select,
+.conditionRow input {
+  padding: 8px 10px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.conditionRow select {
+  min-width: 120px;
+}
+
+.conditionRow input {
+  flex: 1;
+}
+
+.removeCondition {
+  padding: 6px 10px;
+  border: none;
+  background: #ffe3e3;
+  color: #c92a2a;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.addConditionBtn {
+  padding: 8px 16px;
+  border: 1px dashed #dee2e6;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #6c757d;
+  width: 100%;
+}
+
+.addConditionBtn:hover {
+  border-color: #1c7ed6;
+  color: #1c7ed6;
+}
+
+.autoApplyToggle {
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.autoApplyToggle label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.builderFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #e9ecef;
+}
+
+.cancelBtn {
+  padding: 10px 20px;
+  border: 1px solid #dee2e6;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.saveBtn {
+  padding: 10px 24px;
+  border: none;
+  background: #1c7ed6;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -1,0 +1,138 @@
+/* File Grid Styles */
+
+.fileGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Preview Bar */
+.previewBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #e7f5ff;
+  border: 1px solid #a5d8ff;
+  border-radius: 8px;
+}
+
+.previewInfo {
+  font-size: 14px;
+  color: #1971c2;
+}
+
+.previewActive {
+  font-weight: 500;
+}
+
+.previewActions {
+  display: flex;
+  gap: 8px;
+}
+
+.previewBtn {
+  padding: 8px 14px;
+  border: 1px solid #74c0fc;
+  background: white;
+  color: #1971c2;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.previewBtn:hover {
+  background: #e7f5ff;
+}
+
+.applyBtn {
+  padding: 8px 16px;
+  border: none;
+  background: #2b8a3e;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cancelBtn {
+  padding: 8px 14px;
+  border: 1px solid #dee2e6;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px;
+  color: #6c757d;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e9ecef;
+  border-top-color: #1c7ed6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty {
+  text-align: center;
+  padding: 64px;
+  color: #6c757d;
+}
+
+.emptyIcon {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.empty h3 {
+  margin: 0 0 8px;
+  color: #212529;
+}
+
+.empty p {
+  margin: 0;
+}
+
+/* Load More */
+.loadMore {
+  text-align: center;
+  padding: 24px;
+}
+
+.loadMoreBtn {
+  padding: 12px 32px;
+  border: 1px solid #dee2e6;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.loadMoreBtn:hover {
+  background: #f8f9fa;
+}
