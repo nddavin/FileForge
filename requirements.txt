@@ -12,15 +12,9 @@ pydantic>=2.10.3
 cryptography>=44.0.0
 ecdsa>=0.19.0
 urllib3>=2.2.2
+# Top-level requirements: delegate to backend to avoid duplication
 
-# Async Utilities
-anyio>=4.2.0
+-r backend/requirements.txt
 
-# Testing
-pytest>=8.3.4
-pytest-asyncio>=0.25.3
-pytest-cov>=6.0.0
-httpx>=0.28.1
+# Developer/test extras (optional): see pyproject.toml [project.optional-dependencies]
 
-# Note: See backend/requirements.txt for full backend dependencies
-# including ML/AI, Celery, Supabase, and other service-specific packages
