@@ -5,8 +5,10 @@ from sqlalchemy.orm import Session
 from ..core.dependencies import get_db
 from ..core.security import decode_access_token
 from ..crud.user import get_user_by_username
+from ..core.config import settings
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_PREFIX}/auth/login")
 
 
 def get_current_user(

@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     # CORS
     allowed_origins: list[str] = ["http://localhost:3000"]
 
+    # API prefixes
+    API_V1_PREFIX: str = "/api/v1"
+
     # External services
     sentry_dsn: str = ""
 
