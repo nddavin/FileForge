@@ -47,7 +47,7 @@ mutagen>=1.47.0
 feedparser>=6.0.0
 
 # Supabase
-supabase>=2.39.0
+supabase>=2.27.2
 
 # Testing / Dev
 pytest>=8.3.4
