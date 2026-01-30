@@ -317,8 +317,19 @@ class WebhookService:
 
     def verify_signature(self, payload: str, signature: str, secret: str) -> bool:
         """Verify webhook signature"""
-        expected = f"sha256={self._generate_signature(payload, secret)}"
-        return hmac.compare_digest(expected, signature)
+        # Accept either raw hex signature or the 'sha256=...' prefixed form.
+        expected_hex = self._generate_signature(payload, secret)
+        expected_prefixed = f"sha256={expected_hex}"
+
+        # Normalize incoming signature
+        if signature.startswith("sha256="):
+            incoming = signature
+        else:
+            incoming = signature
+
+        return hmac.compare_digest(expected_prefixed, incoming) or hmac.compare_digest(
+            expected_hex, incoming
+        )
 
     def get_delivery_history(
         self, subscription_id: Optional[str] = None, limit: int = 100

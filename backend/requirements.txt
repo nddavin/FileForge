@@ -1,17 +1,8 @@
 # Core Framework
-fastapi>=0.100.0
-uvicorn[standard]>=0.20.0
+aiofiles>=24.1.0
 
-# Database
-sqlalchemy>=1.4.0
-alembic>=1.8.0
-psycopg2-binary>=2.9.0
+# Synchronized with pyproject.toml (backend-focused)
 
-# Authentication & Security
-python-jose[cryptography]>=3.3.0
-passlib[bcrypt]>=1.7.0
-pydantic>=2.0.0
-pydantic-settings>=2.0.0
 # Core Framework
 fastapi>=0.115.6
 uvicorn[standard]>=0.32.0
@@ -35,30 +26,21 @@ python-multipart>=0.0.21
 redis>=5.2.1
 celery>=5.4.0
 
-# Optional: ML/AI (speaker identification, voice training)
-# torch and heavy ai deps intentionally optional; install in virtualenv when needed
-# torch>=2.5.1
-# torchaudio>=2.5.1
-# numpy>=2.2.1
-# scikit-learn>=1.3.0
-
-# Optional: Audio/Video Processing
-mutagen>=1.47.0
-feedparser>=6.0.0
-
 # Supabase
 supabase>=2.27.2
+
+# Utilities
+python-dotenv>=1.0.1
+python-dateutil>=2.8.2
+mutagen>=1.47.0
+feedparser>=6.0.0
 
 # Testing / Dev
 pytest>=8.3.4
 pytest-asyncio>=0.25.3
 pytest-cov>=6.0.0
 
-# Utilities
-python-dateutil>=2.8.2
-aiofiles>=24.1.0
-
 # Notes:
-# - Heavy optional deps (torch, torchaudio) are commented out to avoid accidental installs
-# - See pyproject.toml [project.optional-dependencies] for developer and multimedia extras
+# - Heavy optional deps (torch, torchaudio, opencv, etc.) intentionally excluded here;
+#   install them in a separate extras/virtualenv when needed.
 aiofiles>=24.1.0
