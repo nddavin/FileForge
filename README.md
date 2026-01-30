@@ -118,6 +118,10 @@ A production-ready, enterprise-grade file processing system with advanced securi
 4. **Access the Application**
     - Frontend: http://localhost:3000
     - Backend API: http://localhost:8000
+
+### How to run tests
+
+See the canonical testing instructions in `docs/TESTING.md` for backend and frontend test commands and CI notes.
     - API Documentation: http://localhost:8000/docs
 
 ### Manual Installation
@@ -155,7 +159,7 @@ A production-ready, enterprise-grade file processing system with advanced securi
 | **Security Guide** | Security features, RBAC, compliance, audit trails | [docs/security-guide.md](docs/security-guide.md) |
 | **File Format Support** | Comprehensive format matrix, processing capabilities | [docs/file-format-support.md](docs/file-format-support.md) |
 | **Processing Pipeline** | Pipeline architecture, workflows, error handling | [docs/processing-pipeline.md](docs/processing-pipeline.md) |
-| **API Documentation** | OpenAPI/Swagger docs (available at /docs when running) | [docs/]() |
+| **API Documentation** | OpenAPI/Swagger docs (available at /docs when running) | [docs/README.md](docs/README.md) |
 | **Deployment Guide** | Production deployment for Docker, K8s, cloud providers | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) |
 | **Operations Runbook** | Incident response, monitoring, disaster recovery | [docs/RUNBOOK.md](docs/RUNBOOK.md) |
 | **Privacy Policy** | GDPR-compliant data collection and usage | [docs/PRIVACY_POLICY.md](docs/PRIVACY_POLICY.md) |
