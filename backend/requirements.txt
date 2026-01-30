@@ -10,37 +10,59 @@ uvicorn[standard]>=0.32.0
 # Database & Migrations
 sqlalchemy>=2.0.36
 alembic>=1.14.0
+# Backend dependency manifest (cleaned & synced with pyproject.toml)
+
+# Core framework
+fastapi>=0.115.6
+uvicorn[standard]>=0.32.0
+
+# Data & migrations
+sqlalchemy>=2.0.36
+alembic>=1.14.0
 psycopg2-binary>=2.9.10
 
-# Authentication & Security
-python-jose[cryptography]>=3.3.0
-passlib[bcrypt]>=1.7.4
+# Validation / Settings
 pydantic>=2.10.3
 pydantic-settings>=2.0.0
 
-# Async HTTP
+# Auth & security
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+cryptography>=44.1.0
+
+# Async HTTP / file uploads
 httpx>=0.28.1
 python-multipart>=0.0.21
 
-# Task Queue / Cache
+# Task queue & cache
 redis>=5.2.1
 celery>=5.4.0
 
-# Supabase
+# Supabase & integrations
 supabase>=2.27.2
+requests>=2.32.3
 
 # Utilities
+aiofiles>=24.1.0
 python-dotenv>=1.0.1
 python-dateutil>=2.8.2
+
+# Media / processing (light-weight extras)
 mutagen>=1.47.0
 feedparser>=6.0.0
 
-# Testing / Dev
+# Testing / dev (kept here for convenience)
 pytest>=8.3.4
 pytest-asyncio>=0.25.3
 pytest-cov>=6.0.0
 
+# Optional: heavy ML/AI dependencies (install separately in a controlled env)
+# torch>=2.5.1
+# torchaudio>=2.5.1
+# numpy>=2.2.1
+# transformers>=4.48.0
+# sentence-transformers>=3.1.1
+
 # Notes:
-# - Heavy optional deps (torch, torchaudio, opencv, etc.) intentionally excluded here;
-#   install them in a separate extras/virtualenv when needed.
-aiofiles>=24.1.0
+# - Use the project's `pyproject.toml` as the source-of-truth for published packaging.
+# - Keep heavy ML packages commented out to avoid accidental installs during CI or ddev setup.
