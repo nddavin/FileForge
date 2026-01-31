@@ -32,31 +32,31 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 // Bulk Operations API
 export const bulkApi = {
   sort: (fileIds: string[], rules?: unknown[], sortBy?: string, churchId?: string) =>
-    request('/bulk/bulk-sort', {
+    request('/bulk/sort', {
       method: 'POST',
       body: { file_ids: fileIds, rules, sort_by: sortBy, church_id: churchId },
     }),
 
   tag: (fileIds: string[], tags: string[]) =>
-    request('/bulk/bulk-tag', {
+    request('/bulk/tag', {
       method: 'POST',
       body: { file_ids: fileIds, tags },
     }),
 
   move: (fileIds: string[], folderId: string) =>
-    request('/bulk/bulk-move', {
+    request('/bulk/move', {
       method: 'POST',
       body: { file_ids: fileIds, folder_id: folderId },
     }),
 
   optimize: (fileIds: string[], churchId: string, profile?: string) =>
-    request('/bulk/bulk-optimize', {
+    request('/bulk/optimize', {
       method: 'POST',
       body: { file_ids: fileIds, church_id: churchId, profile },
     }),
 
   createPackage: (fileIds: string[], churchId: string, name?: string) =>
-    request('/bulk/bulk-package', {
+    request('/bulk/package', {
       method: 'POST',
       body: { file_ids: fileIds, church_id: churchId, name },
     }),
@@ -89,18 +89,18 @@ export const filesApi = {
     metadata?: Record<string, unknown>;
     tags?: string[];
   }) =>
-    request('/bulk/files', {
+    request('/files', {
       method: 'POST',
       body: fileData,
     }),
 
   update: (fileId: string, fileData: Record<string, unknown>) =>
-    request(`/bulk/files/${fileId}`, {
+    request(`/files/${fileId}`, {
       method: 'PATCH',
       body: fileData,
     }),
 
-  delete: (fileId: string) => request(`/bulk/files/${fileId}`, { method: 'DELETE' }),
+  delete: (fileId: string) => request(`/files/${fileId}`, { method: 'DELETE' }),
 };
 
 // Sermons API
@@ -141,10 +141,10 @@ export const rbacApi = {
 
 // Integrations API
 export const integrationsApi = {
-  listAvailable: () => request('/integrations/available'),
+  listAvailable: () => request('/integrations'),
   getStatus: () => request('/integrations/status'),
   connect: (type: string, config: Record<string, unknown>) =>
-    request(`/integrations/connect/${type}`, {
+    request(`/integrations/${type}/connect`, {
       method: 'POST',
       body: config,
     }),

@@ -7,9 +7,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime, timezone, timedelta
 from uuid import uuid4
 
-# Configure pytest-asyncio
-pytest_plugins = ("pytest_asyncio",)
-
 
 # ====== Test Configuration ======
 
@@ -170,7 +167,7 @@ def mock_celery_app():
 @pytest.fixture
 def valid_jwt_token(test_user):
     """Create a valid JWT token for testing."""
-    with patch("app.core.security.create_access_token") as mock_create:
+    with patch("file_processor.core.security.create_access_token") as mock_create:
         mock_create.return_value = "valid_test_token"
         return "valid_test_token"
 
@@ -178,7 +175,7 @@ def valid_jwt_token(test_user):
 @pytest.fixture
 def expired_jwt_token(test_user):
     """Create an expired JWT token for testing."""
-    with patch("app.core.security.create_access_token") as mock_create:
+    with patch("file_processor.core.security.create_access_token") as mock_create:
         mock_create.return_value = "expired_test_token"
     return "expired_test_token"
 
@@ -195,7 +192,7 @@ def auth_headers(valid_jwt_token):
 @pytest.fixture
 def admin_auth_headers(test_admin):
     """Create admin authorization headers."""
-    with patch("app.core.security.create_access_token") as mock_create:
+    with patch("file_processor.core.security.create_access_token") as mock_create:
         mock_create.return_value = "admin_test_token"
         return {"Authorization": "Bearer admin_test_token"}
 

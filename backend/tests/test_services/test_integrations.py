@@ -4,14 +4,14 @@ import pytest
 from unittest.mock import Mock, patch, MagicMock
 import json
 
-from backend.file_processor.services.integrations.webhook import (
+from file_processor.services.integrations.webhook import (
     WebhookService,
     WebhookPayload,
     WebhookSubscription,
     WebhookEventType,
     WebhookDeliveryResult,
 )
-from backend.file_processor.services.integrations.base import (
+from file_processor.services.integrations.base import (
     IntegrationConfig,
     IntegrationResult,
     IntegrationBase,
@@ -294,7 +294,7 @@ class TestConnectors:
 
     def test_salesforce_connector_properties(self):
         """Test Salesforce connector properties"""
-        from backend.file_processor.services.integrations import SalesforceConnector
+        from file_processor.services.integrations import SalesforceConnector
 
         config = IntegrationConfig(
             integration_type=IntegrationType.CRM,
@@ -313,7 +313,7 @@ class TestConnectors:
 
     def test_docusign_connector_properties(self):
         """Test DocuSign connector properties"""
-        from backend.file_processor.services.integrations import DocuSignConnector
+        from file_processor.services.integrations import DocuSignConnector
 
         config = IntegrationConfig(
             integration_type=IntegrationType.ESIGNATURE,
@@ -329,7 +329,7 @@ class TestConnectors:
 
     def test_slack_connector_properties(self):
         """Test Slack connector properties"""
-        from backend.file_processor.services.integrations import SlackConnector
+        from file_processor.services.integrations import SlackConnector
 
         config = IntegrationConfig(
             integration_type=IntegrationType.COLLABORATION,
@@ -345,7 +345,7 @@ class TestConnectors:
 
     def test_sap_connector_properties(self):
         """Test SAP connector properties"""
-        from backend.file_processor.services.integrations import SAPConnector
+        from file_processor.services.integrations import SAPConnector
 
         config = IntegrationConfig(
             integration_type=IntegrationType.ERP,

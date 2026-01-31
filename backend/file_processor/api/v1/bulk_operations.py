@@ -31,7 +31,7 @@ class SortingRuleSchema(BaseModel):
 
 class BulkSortRequest(BaseModel):
     file_ids: List[str]
-    rules: Optional[List[SortingRule]] = None
+    rules: Optional[List[SortingRuleSchema]] = None
     sort_by: Optional[str] = None
     church_id: str
 
@@ -50,9 +50,11 @@ class BulkMoveRequest(BaseModel):
 class BulkOptimizeRequest(BaseModel):
     file_ids: List[str]
     church_id: str
+    profile: Optional[str] = None
 
 
 class TagRequest(BaseModel):
+    file_ids: List[str]
     tags: List[str]
 
 
@@ -182,7 +184,6 @@ async def bulk_optimize(
 
 @router.post("/bulk-tag")
 async def bulk_tag_files(
-    file_ids: List[str],
     request: TagRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -191,7 +192,7 @@ async def bulk_tag_files(
 
     tagged_count = 0
 
-    for file_id in file_ids:
+    for file_id in request.file_ids:
         file_record = db.query(File).filter(File.id == file_id).first()
         if file_record:
             # Get existing tags or initialize empty list

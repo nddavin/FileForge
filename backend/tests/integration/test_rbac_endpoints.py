@@ -7,7 +7,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
 from jose import jwt, ExpiredSignatureError
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 # ====== Configuration ======
@@ -159,7 +159,7 @@ def admin_token():
         "email": "admin@church.org",
         "roles": ["admin", "user"],
         "church_id": "test-church-id",
-        "exp": datetime.now(timezone.utc) + datetime.timedelta(hours=1),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1),
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -172,7 +172,7 @@ def manager_token():
         "email": "manager@church.org",
         "roles": ["manager", "user"],
         "church_id": "test-church-id",
-        "exp": datetime.now(timezone.utc) + datetime.timedelta(hours=1),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1),
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -185,7 +185,7 @@ def user_token():
         "email": "user@church.org",
         "roles": ["user"],
         "church_id": "test-church-id",
-        "exp": datetime.now(timezone.utc) + datetime.timedelta(hours=1),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1),
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -196,7 +196,7 @@ def expired_token():
     payload = {
         "sub": "user-id",
         "roles": ["admin"],
-        "exp": datetime.now(timezone.utc) - datetime.timedelta(hours=1),
+        "exp": datetime.now(timezone.utc) - timedelta(hours=1),
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -208,7 +208,7 @@ def tampered_admin_token():
     payload = {
         "sub": "regular-user-id",
         "roles": ["admin"],
-        "exp": datetime.now(timezone.utc) + datetime.timedelta(hours=1),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1),
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -235,14 +235,14 @@ class TestRBACEndpoints:
         headers = {"Authorization": f"Bearer {token}"}
 
         # Mock the dependency to return appropriate user
-        with patch("app.core.security.decode_access_token") as mock_decode:
+        with patch("file_processor.core.security.decode_access_token") as mock_decode:
             mock_decode.return_value = {
                 "sub": f"{role}-user-id",
                 "roles": [role, "user"] if role != "user" else ["user"],
                 "church_id": "test-church-id",
             }
 
-            with patch("app.api.deps.get_current_user") as mock_user:
+            with patch("file_processor.api.deps.get_current_user") as mock_user:
                 mock_user.return_value = MagicMock(
                     id=f"{role}-user-id",
                     roles=[role, "user"] if role != "user" else ["user"],
@@ -284,8 +284,8 @@ class TestExpiredTokens:
     def test_expired_token_returns_401(self, expired_token):
         """Test that expired tokens are rejected."""
 
-        with patch("app.core.security.decode_access_token") as mock_decode:
-            mock_decode.side_effect = jwt.ExpiredSignatureError()
+        with patch("file_processor.core.security.decode_access_token") as mock_decode:
+            mock_decode.side_effect = ExpiredSignatureError()
 
             from fastapi import HTTPException
 
@@ -303,7 +303,7 @@ class TestTamperedTokens:
     def test_tampered_admin_token_denied(self, tampered_admin_token):
         """Test that users trying to escalate privileges are caught."""
 
-        with patch("app.core.security.decode_access_token") as mock_decode:
+        with patch("file_processor.core.security.decode_access_token") as mock_decode:
             # In real scenario, we'd verify against DB
             # For testing, we check that admin role is properly validated
             mock_decode.return_value = {
@@ -323,7 +323,7 @@ class TestRBACDependencies:
     def test_require_role_admin_only(self):
         """Test require_role dependency for admin-only endpoints."""
 
-        from backend.core.security import require_role
+        from file_processor.core.security import require_role
 
         # Mock user with admin role
         admin_user = MagicMock()
@@ -336,7 +336,7 @@ class TestRBACDependencies:
     def test_require_role_manager_denied(self):
         """Test require_role denies manager on admin-only endpoint."""
 
-        from backend.core.security import require_role
+        from file_processor.core.security import require_role
         from fastapi import HTTPException
 
         # Mock user with manager role
@@ -352,7 +352,7 @@ class TestRBACDependencies:
     def test_require_role_multi_role_support(self):
         """Test require_role with multiple allowed roles."""
 
-        from backend.core.security import require_role
+        from file_processor.core.security import require_role
 
         # User with manager role
         manager_user = MagicMock()
