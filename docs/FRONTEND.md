@@ -2,171 +2,111 @@
 
 ## Overview
 
-FileForge is a sermon file management system built with **Next.js 16**, **React 18**, and **TypeScript**. The frontend provides a modern web interface for managing sermon files, organizing content with smart sorting rules, and handling bulk operations.
+FileForge frontend is a **Vite** + **React 18** + **TypeScript** application. It provides a modern web interface for file management, smart sorting rules, and bulk operations.
 
 ## Tech Stack
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| Next.js | ^16.1.6 | React framework with SSR/SSG |
-| React | 18.2.0 | UI component library |
-| TypeScript | 5.9.3 | Type safety |
-| Supabase | ^2.49.0 | Backend-as-a-Service (auth, database, storage) |
-| Axios | ^1.6.3 | HTTP client |
-| ESLint | ^9.39.2 | Code linting |
+| Vite | ^5.3.5 | Build tool and dev server |
+| React | ^18.3.1 | UI component library |
+| TypeScript | ^5.5.4 | Type safety |
+| Tailwind CSS | ^3.4.7 | Styling |
+| Radix UI | ^1.x | Headless UI components |
+| Supabase | ^2.45.0 | Backend-as-a-Service (auth, database, storage) |
+| React Query | - | Server state management |
+| Zustand | - | Client state management |
 
 ## Project Structure
 
 ```
 frontend/
-├── Dockerfile           # Docker container configuration
-├── next.config.js       # Next.js configuration
-├── package.json         # Dependencies and scripts
-├── package-lock.json    # Locked dependency versions
-├── public/              # Static assets
-└── src/
-    ├── __tests__/       # Unit and integration tests
-    │   └── fileManager.test.tsx
-    ├── app/             # Next.js App Router pages
-    ├── components/      # React components
-    │   ├── BulkOperationsBar.tsx
-    │   ├── FileGrid.tsx
-    │   ├── FileRelationshipMap.tsx
-    │   ├── PreacherFilter.tsx
-    │   ├── SermonFileManager.tsx
-    │   ├── SermonWorkflowBoard.tsx
-    │   ├── SmartSortingRules.tsx
-    │   ├── SortableFileCard.tsx
-    │   └── *.module.css # Component styles
-    ├── contexts/        # React Context providers
-    │   ├── AuthContext.tsx
-    │   ├── FileManagerContext.tsx
-    │   └── SermonSearchContext.tsx
-    └── lib/             # Utility libraries
-        ├── database.types.ts
-        └── supabase.ts
+├── Dockerfile              # Docker container configuration
+├── index.html              # HTML entry point
+├── nginx.conf              # Nginx configuration for production
+├── package.json            # Dependencies and scripts
+├── package-lock.json       # Locked dependency versions
+├── postcss.config.mjs      # PostCSS configuration
+├── vite.config.ts          # Vite configuration
+├── playwright.config.ts    # E2E testing configuration
+├── public/                 # Static assets
+├── src/
+│   ├── components/         # React components
+│   │   ├── ui/             # Reusable UI components
+│   │   ├── file-manager/   # File management components
+│   │   └── workflow/       # Workflow components
+│   ├── hooks/              # Custom React hooks
+│   ├── lib/                # Utility libraries
+│   │   ├── supabase.ts     # Supabase client
+│   │   └── utils.ts        # Helper functions
+│   ├── pages/              # Page components
+│   ├── stores/             # Zustand state stores
+│   ├── styles/             # Global styles
+│   ├── types/              # TypeScript types
+│   └── main.tsx            # Application entry point
+└── tests/                  # Test files
 ```
 
 ## Key Components
 
-### Core Components
+### File Management
 
-#### [`SermonFileManager`](src/components/SermonFileManager.tsx)
-Main dashboard component for managing sermon files. Features:
-- Tabbed interface (Files, Smart Rules, Relationships)
-- File grid view with bulk operations
-- Smart sorting rules management
-- File relationship visualization
-- Folder assignment modal
+#### FileManager
+Main dashboard for managing files with:
+- File grid/list view
+- Bulk operations
+- Sorting and filtering
+- Upload progress tracking
 
-#### [`FileGrid`](src/components/FileGrid.tsx)
-Displays files in a grid layout with:
-- File preview thumbnails
-- Selection checkboxes
-- Sorting and filtering options
-- Multi-select support
+#### SmartSortingRules
+UI for creating automatic sorting rules:
+- Rule builder interface
+- Condition editor
+- Preview functionality
 
-#### [`BulkOperationsBar`](src/components/BulkOperationsBar.tsx)
-Provides bulk actions for selected files:
-- Move to folder
-- Delete selected
-- Apply sorting rules
-- Export metadata
+### State Management
 
-#### [`SmartSortingRules`](src/components/SmartSortingRules.tsx)
-UI for creating and managing automatic file sorting rules based on:
-- Speaker identification
-- Date patterns
-- Series categorization
-- Custom regex patterns
-
-#### [`FileRelationshipMap`](src/components/FileRelationshipMap.tsx)
-Visualizes connections between sermon files:
-- Series relationships
-- Speaker connections
-- Topic tags
-- Cross-references
-
-#### [`SermonWorkflowBoard`](src/components/SermonWorkflowBoard.tsx)
-Kanban-style board for sermon processing workflow stages.
-
-### Context Providers
-
-#### [`AuthContext`](src/contexts/AuthContext.tsx)
-Manages authentication state and RBAC:
+#### Authentication
+Uses Supabase Auth with:
 - JWT token management
-- User session handling
-- Role-based access control
-- Permission guards
-- Protected route wrapper
+- Session persistence
+- RBAC integration
 
-**Key exports:**
-- `useAuth()` - Hook to access auth state
-- `AuthProvider` - Context provider component
-- `ProtectedRoute` - HOC for protected pages
-- `RoleBasedUI` - Conditional rendering by role
-- `PermissionBasedUI` - Conditional rendering by permission
-- `AdminOnly` / `ManagerOnly` - Role guard components
-
-#### [`FileManagerContext`](src/contexts/FileManagerContext.tsx)
-Provides file management state:
-- File list management
-- Selection state
-- Upload progress
-- Refresh functionality
-
-#### [`SermonSearchContext`](src/contexts/SermonSearchContext.tsx)
-Handles sermon search and filtering:
-- Full-text search
-- Filter by speaker, date, series
-- Advanced query builder
-
-## Library Configuration
-
-### [`supabase.ts`](src/lib/supabase.ts)
-Supabase client configuration with:
-- Environment variable setup
-- Auth configuration (auto-refresh, session persistence)
-- Realtime subscriptions for file updates
-- File storage operations (upload, delete, signed URLs)
-- Auth helper functions (sign up, sign in, OAuth, password reset)
-
-**Exported modules:**
-- `supabase` - Supabase client instance
-- `fileStorage` - File operations utility
-- `fileRealtime` - Realtime subscription helpers
-- `authHelpers` - Authentication functions
-- `FileUploadResult` / `FileRecord` - Type definitions
-
-### [`database.types.ts`](src/lib/database.types.ts)
-TypeScript type definitions for Supabase database schema:
-
-| Table | Description |
-|-------|-------------|
-| `files` | Uploaded file metadata |
-| `users` | User profiles |
-| `workflows` | Processing workflow configurations |
-| `roles` | RBAC roles |
-| `permissions` | Granular permissions |
-| `audit_logs` | Action logging for compliance |
+#### File Store (Zustand)
+```typescript
+interface FileStore {
+  files: File[];
+  selectedFiles: string[];
+  uploadProgress: Map<string, number>;
+  // Actions
+  uploadFile: (file: File) => Promise<void>;
+  deleteFiles: (ids: string[]) => Promise<void>;
+  toggleSelection: (id: string) => void;
+}
+```
 
 ## Environment Variables
 
-Required environment variables (set in `.env.local`):
+Create `.env.local` file:
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=your-project-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+# Supabase
+VITE_SUPABASE_URL=your-project-url
+VITE_SUPABASE_ANON_KEY=your-anon-key
+
+# API
+VITE_API_URL=http://localhost:8000
 ```
 
 ## Available Scripts
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start development server |
+| `npm run dev` | Start development server (port 3000) |
 | `npm run build` | Build for production |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
+| `npm run preview` | Preview production build |
+| `npm run test` | Run unit tests (Vitest) |
+| `npm run test:ui` | Run tests with UI |
 
 ## Development
 
@@ -184,66 +124,41 @@ The app will be available at `http://localhost:3000`
 
 ```bash
 npm run build
-npm run start
 ```
+
+Output goes to `dist/` directory.
 
 ### Docker
 
 ```bash
+# Build image
 docker build -t fileforge-frontend .
-docker run -p 3000:3000 fileforge-frontend
+
+# Run container
+docker run -p 3000:80 fileforge-frontend
 ```
-
-## Authentication Flow
-
-1. User signs in via Supabase Auth
-2. JWT token received and stored in localStorage
-3. `AuthContext` decodes token and manages session
-4. Role and permission claims extracted from token
-5. Protected routes enforce access control
-
-## File Upload Flow
-
-1. User selects files via drag-and-drop or file picker
-2. Files uploaded to Supabase Storage with progress tracking
-3. File metadata saved to database
-4. Realtime subscription notifies other clients
-5. Processing pipeline triggered (backend)
-
-## Smart Sorting Rules
-
-The smart sorting system automatically organizes uploaded files based on:
-
-- **Speaker Detection**: Identifies preacher from file metadata or audio analysis
-- **Date Parsing**: Extracts sermon date from filename or ID3 tags
-- **Series Detection**: Groups sermons into series based on naming patterns
-- **Topic Classification**: Uses ML model to categorize by topic
-
-Rules can be created and managed via the Smart Rules tab.
-
-## Realtime Updates
-
-The frontend subscribes to database changes via Supabase Realtime:
-
-- File insert/update/delete notifications
-- Processing status updates
-- User presence indicators
 
 ## Testing
 
+### Unit Tests (Vitest)
+
 ```bash
-npm run test          # Run all tests
-npm run test:watch    # Run tests in watch mode
-npm run test:coverage # Generate coverage report
+npm run test           # Run tests
+npm run test:ui        # Run with UI
+```
+
+### E2E Tests (Playwright)
+
+```bash
+npx playwright test    # Run E2E tests
 ```
 
 ## Code Style
 
-- TypeScript for type safety
+- TypeScript strict mode
 - React functional components with hooks
-- CSS Modules for component styling
-- ESLint with Next.js config
-- Prettier for formatting
+- Tailwind CSS for styling
+- ESLint + Prettier for formatting
 
 ## Browser Support
 

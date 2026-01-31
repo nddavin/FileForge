@@ -110,10 +110,16 @@ A production-ready, enterprise-grade file processing system with advanced securi
     # Edit .env with your configuration
     ```
 
-3. **Docker Deployment**
+3. **Docker Deployment (Recommended)**
     ```bash
+    # Using Make
+    make up
+    
+    # Or using Docker Compose directly
     docker-compose up -d
     ```
+    
+    See [DOCKER.md](DOCKER.md) for complete Docker documentation.
 
 4. **Access the Application**
     - Frontend: http://localhost:3000
@@ -154,8 +160,10 @@ See the canonical testing instructions in `docs/TESTING.md` for backend and fron
 
 | Guide | Description | Link |
 |-------|-------------|------|
+| **Docker Guide** | Complete Docker setup and deployment | [DOCKER.md](DOCKER.md) |
 | **User Guide** | End-user documentation, file upload, sorting rules | [docs/user-guide.md](docs/user-guide.md) |
 | **Developer Guide** | Development setup, API development, deployment | [docs/developer-guide.md](docs/developer-guide.md) |
+| **Frontend Guide** | Frontend development with Vite + React | [docs/FRONTEND.md](docs/FRONTEND.md) |
 | **Security Guide** | Security features, RBAC, compliance, audit trails | [docs/security-guide.md](docs/security-guide.md) |
 | **File Format Support** | Comprehensive format matrix, processing capabilities | [docs/file-format-support.md](docs/file-format-support.md) |
 | **Processing Pipeline** | Pipeline architecture, workflows, error handling | [docs/processing-pipeline.md](docs/processing-pipeline.md) |
@@ -163,7 +171,7 @@ See the canonical testing instructions in `docs/TESTING.md` for backend and fron
 | **Deployment Guide** | Production deployment for Docker, K8s, cloud providers | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) |
 | **Operations Runbook** | Incident response, monitoring, disaster recovery | [docs/RUNBOOK.md](docs/RUNBOOK.md) |
 | **Privacy Policy** | GDPR-compliant data collection and usage | [docs/PRIVACY_POLICY.md](docs/PRIVACY_POLICY.md) |
-| **Data Processing Addendum** | DPA template for church data protection | [docs/DATA_PROCESSING_ADDENDUM.md](docs/DATA_PROCESSING_ADDENDUM.md) |
+| **Data Processing Addendum** | DPA template for data protection | [docs/DATA_PROCESSING_ADDENDUM.md](docs/DATA_PROCESSING_ADDENDUM.md) |
 | **Contributing Guide** | PR guidelines, code standards, development workflow | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) |
 | **Code of Conduct** | Community standards and enforcement | [docs/CODE_OF_CONDUCT.md](docs/CODE_OF_CONDUCT.md) |
 | **Architecture Decision Records** | Technical design decisions and rationale | [docs/adrs/](docs/adrs/) |
@@ -303,14 +311,19 @@ with open('document.pdf', 'rb') as f:
 
 ```bash
 # Development
-docker-compose up -d
+make up
 
 # Production
-docker-compose -f docker-compose.prod.yml up -d
+make prod
 
-# Scale services
+# View logs
+make logs
+
+# Scale workers
 docker-compose up -d --scale worker=4
 ```
+
+See [DOCKER.md](DOCKER.md) for all available commands.
 
 ### Kubernetes
 

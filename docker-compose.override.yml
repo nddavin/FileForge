@@ -1,0 +1,27 @@
+# Development overrides
+# This file is automatically loaded by docker-compose
+version: "3.9"
+
+services:
+  api:
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+    environment:
+      - DEBUG=true
+      - LOG_LEVEL=debug
+
+  worker:
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+
+  frontend:
+    build:
+      target: builder
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    command: npm run dev -- --host 0.0.0.0 --port 80

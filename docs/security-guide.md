@@ -444,7 +444,7 @@ pip install safety
 safety check -r requirements.txt
 
 # Static analysis
-bandit -r file_forge/
+bandit -r backend/
 
 # OWASP dependency check
 dependency-check --project "FileForge" --scan .

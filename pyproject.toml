@@ -58,7 +58,7 @@ Repository = "https://github.com/fileforge/fileforge"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["file_forge*", "forge_backend*", "forge_frontend*", "multimedia_forge*"]
+include = ["file_processor*"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

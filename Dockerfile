@@ -1,47 +1,64 @@
-# --- Stage 1: Builder (Optional for dependencies) ---
-FROM python:3.11-slim AS builder
+# This Dockerfile builds the entire FileForge application
+# For development, use docker-compose.yml instead
+
+# --- Stage 1: Frontend Builder ---
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /app/frontend
+
+COPY frontend/package*.json ./
+RUN npm ci
+
+COPY frontend/ .
+RUN npm run build
+
+# --- Stage 2: Backend Builder ---
+FROM python:3.11-slim AS backend-builder
 
 WORKDIR /app
 
-# Install system dependencies for psycopg2, ffmpeg, etc.
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
-    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY backend/requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
 
-RUN pip install --upgrade pip && \
-    pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
-
-
-# --- Stage 2: Final Image ---
+# --- Stage 3: Final ---
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install runtime system dependencies
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
-  && rm -rf /var/lib/apt/lists/*
+    nginx \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy wheels from builder
-COPY --from=builder /wheels /wheels
-RUN pip install --no-cache /wheels/*
+# Copy backend dependencies
+COPY --from=backend-builder /root/.local /root/.local
+ENV PATH=/root/.local/bin:$PATH
 
-# Copy project files
-COPY . .
+# Copy backend code
+COPY backend/ ./backend/
 
-ENV PYTHONUNBUFFERED=1
-ENV PORT=8000
-ENV HOST=0.0.0.0
+# Copy frontend build
+COPY --from=frontend-builder /app/frontend/dist /usr/share/nginx/html
 
-# Create uploads folder inside container
+# Copy nginx config
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Create uploads directory
 RUN mkdir -p /app/uploads
-# Expose port for FastAPI
-EXPOSE 8000
 
-# Run using uvicorn in production mode
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Create startup script
+RUN echo '#!/bin/bash\n\
+nginx\n\
+cd /app/backend && uvicorn file_processor.main:app --host 0.0.0.0 --port 8000 --workers 4\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
+EXPOSE 80 8000
+
+CMD ["/app/start.sh"]

@@ -112,7 +112,7 @@ test_slack_connector_properties      ✅
 test_sap_connector_properties        ✅
 ```
 
-#### Sorter Service (7 tests)
+#### FileForge Sorting Service (7 tests)
 ```python
 test_sorter_initialization    ✅
 test_sort_document_file       ✅

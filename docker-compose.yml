@@ -1,45 +1,105 @@
 version: "3.9"
 
 services:
+  # Backend API
   api:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: fileforge-api
     ports:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql://user:password@postgres:5432/fileforge
       - REDIS_URL=redis://redis:6379
-      - SECRET_KEY=dev-secret-key
-      - ENCRYPTION_KEY=dev-encryption-key
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - ENCRYPTION_KEY=dev-encryption-key-change-in-production
+      - JWT_SECRET_KEY=dev-jwt-secret-change-in-production
+      - DEBUG=true
+      - CORS_ORIGINS=http://localhost:3000,http://frontend:80
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ./backend:/app
+      - uploads_data:/app/uploads
     command: uvicorn file_processor.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - fileforge-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
+  # Celery Worker
   worker:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: fileforge-worker
     command: celery -A file_processor.queue worker --loglevel=info
     environment:
       - DATABASE_URL=postgresql://user:password@postgres:5432/fileforge
       - REDIS_URL=redis://redis:6379
-      - SECRET_KEY=dev-secret-key
-      - ENCRYPTION_KEY=dev-encryption-key
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - ENCRYPTION_KEY=dev-encryption-key-change-in-production
+      - JWT_SECRET_KEY=dev-jwt-secret-change-in-production
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ./backend:/app
+      - uploads_data:/app/uploads
+    networks:
+      - fileforge-network
 
+  # Celery Beat (Scheduler)
+  beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fileforge-beat
+    command: celery -A file_processor.queue beat --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/fileforge
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=dev-secret-key-change-in-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    networks:
+      - fileforge-network
+
+  # Redis
   redis:
     image: redis:7-alpine
+    container_name: fileforge-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - fileforge-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
+  # PostgreSQL Database
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
+    container_name: fileforge-postgres
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
@@ -48,18 +108,38 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - fileforge-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d fileforge"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
+  # Frontend
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      target: builder
+    container_name: fileforge-frontend
     ports:
-      - "3000:3000"
+      - "3000:80"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - api
+    networks:
+      - fileforge-network
 
 volumes:
   postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  uploads_data:
+    driver: local
+
+networks:
+  fileforge-network:
+    driver: bridge

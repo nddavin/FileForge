@@ -4,7 +4,7 @@
 
 ## 1. Introduction
 
-FileForge ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our enterprise sermon processing platform.
+FileForge ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our enterprise file processing platform.
 
 By using FileForge, you agree to the collection and use of information in accordance with this policy.
 

@@ -1,6 +1,6 @@
 # Contributing to FileForge
 
-Thank you for your interest in contributing to FileForge! This guide outlines the process for contributing to our enterprise sermon processing platform.
+Thank you for your interest in contributing to FileForge! This guide outlines the process for contributing to our enterprise file processing platform.
 
 ## 📋 Table of Contents
 

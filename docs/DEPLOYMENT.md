@@ -30,7 +30,7 @@ This guide covers deploying FileForge to production environments across various 
         ▼             ▼             ▼
 ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
 │   Frontend  │ │   Backend   │ │   Backend   │
-│  (Next.js)  │ │  (FastAPI)  │ │  (FastAPI)  │
+│(Vite+React) │ │  (FastAPI)  │ │  (FastAPI)  │
 └─────────────┘ └─────────────┘ └─────────────┘
                       │
         ┌─────────────┼─────────────┐
@@ -51,7 +51,7 @@ This guide covers deploying FileForge to production environments across various 
 
 | Component | Image | Description |
 |-----------|-------|-------------|
-| Frontend | `fileforge/frontend` | Next.js web application |
+| Frontend | `fileforge/frontend` | Vite + React web application |
 | Backend | `fileforge/backend` | FastAPI REST API |
 | Worker | `fileforge/worker` | Celery task workers |
 | Redis | `redis:7-alpine` | Message queue |

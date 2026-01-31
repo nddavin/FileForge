@@ -24,14 +24,14 @@ Core components
 - Integrations
   - Connectors for Slack, DocuSign, Salesforce, ERP systems live under `services/integrations`
 
-- Frontend (Next.js)
+- Frontend (Vite + React)
   - Located in `frontend/` and serves UI at port 3000 in dev
 
 Data flow (brief)
 
 1. User uploads file -> API accepts the file and saves to `uploads/`.
 2. API enqueues a processing job (Celery) and returns a tracking id.
-3. Worker picks up job, extracts metadata, runs sorter & workflow engine.
+3. Worker picks up job, extracts metadata, runs FileForge sorting & workflow engine.
 4. Results are stored and surfaced through API; notifications via integrations when configured.
 
 Security & compliance

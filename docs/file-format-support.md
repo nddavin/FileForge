@@ -1,10 +1,10 @@
 # File Format Support Matrix
 
-This document provides comprehensive documentation of supported file formats, metadata extraction methods, processing capabilities, and limitations for the Sorter file processing system.
+This document provides comprehensive documentation of supported file formats, metadata extraction methods, processing capabilities, and limitations for the FileForge file processing system.
 
 ## 📊 Overview
 
-The Sorter system supports **50+ file types** across multiple categories, each with specialized processing capabilities:
+The FileForge system supports **50+ file types** across multiple categories, each with specialized processing capabilities:
 
 | Category | Format Count | Priority | Processing Mode |
 |----------|-------------|----------|-----------------|

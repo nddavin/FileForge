@@ -58,7 +58,7 @@ backend/
 │   │   ├── sermon_processor.py  # Sermon-specific processing
 │   │   ├── extractor.py         # Metadata extraction
 │   │   ├── speaker_identifier.py
-│   │   ├── sorter.py            # Smart sorting
+│   │   ├── sorter.py            # Smart sorting (FileForge sorting engine)
 │   │   ├── supabase.py          # Supabase integration
 │   │   ├── workflow_engine.py   # Workflow orchestration
 │   │   └── integrations/        # Third-party integrations

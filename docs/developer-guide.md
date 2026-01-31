@@ -6,50 +6,49 @@ This guide covers setting up a development environment, contributing to the proj
 
 ```
 FileForge/
-├── forge_backend/           # Backend FastAPI service
-│   ├── __init__.py
-│   ├── backend.py           # Application entry point
-│   ├── requirements.txt
-│   └── Dockerfile
-├── forge_frontend/          # Flask frontend service
-│   ├── __init__.py
-│   ├── frontend.py          # Application entry point
-│   ├── templates/           # HTML templates
-│   ├── requirements.txt
-│   └── Dockerfile
-├── file_forge/              # Core file processing service
-│   ├── __init__.py
-│   ├── api.py               # API endpoints
-│   ├── auth.py              # Authentication
-│   ├── config.py            # Configuration
-│   ├── database.py          # Database models
-│   ├── processors.py        # File processors
-│   ├── smart_sorter.py      # Sorting logic
-│   ├── workflow_engine.py
-│   ├── requirements.txt
-│   └── Dockerfile
-├── multimedia_forge/        # Multimedia processing service
-│   ├── __init__.py
-│   ├── api.py
-│   ├── auth.py
-│   ├── config.py
-│   ├── processors.py
-│   ├── requirements.txt
-│   └── Dockerfile
+├── backend/                 # Backend FastAPI service
+│   ├── file_processor/      # Main application package
+│   │   ├── api/             # API routers
+│   │   ├── core/            # Configuration & security
+│   │   ├── models/          # Database models
+│   │   ├── schemas/         # Pydantic schemas
+│   │   ├── services/        # Business logic
+│   │   │   └── integrations/# Third-party integrations
+│   │   ├── crud/            # Database operations
+│   │   ├── utils/           # Utilities
+│   │   └── main.py          # Application entry
+│   ├── celery_tasks/        # Background tasks
+│   ├── migrations/          # Database migrations
+│   ├── tests/               # Test suite
+│   ├── requirements.txt     # Python dependencies
+│   └── Dockerfile           # Container configuration
+├── frontend/                # React + Vite frontend
+│   ├── src/                 # Source code
+│   │   ├── components/      # React components
+│   │   ├── hooks/           # Custom hooks
+│   │   ├── lib/             # Utilities
+│   │   ├── pages/           # Page components
+│   │   └── main.tsx         # Entry point
+│   ├── tests/               # Test files
+│   ├── package.json         # Node dependencies
+│   ├── vite.config.ts       # Vite config
+│   └── Dockerfile           # Container configuration
 ├── docs/                    # Documentation
 │   ├── developer-guide.md
 │   ├── security-guide.md
 │   ├── user-guide.md
 │   ├── file-format-support.md
-│   └── processing-pipeline.md
-├── k8s/                     # Kubernetes manifests
-│   ├── deployment.yaml
-│   └── ...
+│   ├── processing-pipeline.md
+│   └── adrs/                # Architecture decisions
+├── docker/                  # Docker configurations
+│   └── nginx.conf           # Nginx reverse proxy
 ├── uploads/                 # Uploaded files (gitignored)
 ├── .env.example             # Environment template
-├── requirements.txt         # Root dependencies
-├── docker-compose.yml       # Docker Compose config
-└── README.md
+├── docker-compose.yml       # Development orchestration
+├── docker-compose.prod.yml  # Production orchestration
+├── Dockerfile               # Root Dockerfile (monolithic)
+├── Makefile                 # Docker commands
+└── README.md                # Project overview
 ```
 
 ## Development Setup
@@ -80,11 +79,13 @@ FileForge/
 
 3. **Install dependencies**
    ```bash
+   # Backend
+   cd backend
    pip install -r requirements.txt
-   pip install -r forge_backend/requirements.txt
-   pip install -r forge_frontend/requirements.txt
-   pip install -r file_forge/requirements.txt
-   pip install -r multimedia_forge/requirements.txt
+   
+   # Frontend
+   cd ../frontend
+   npm install
    ```
 
 4. **Configure environment**
@@ -95,16 +96,21 @@ FileForge/
 
 5. **Initialize database**
    ```bash
-   python -m file_forge.database
+   cd backend
+   # Database tables are auto-created on startup
+   # Or run migrations if using Alembic
+   alembic upgrade head
    ```
 
 6. **Run development servers**
    ```bash
    # Terminal 1: Backend
-   uvicorn file_forge.main:app --reload --host 0.0.0.0 --port 8000
+   cd backend
+   uvicorn file_processor.main:app --reload --host 0.0.0.0 --port 8000
    
    # Terminal 2: Frontend
-   python forge_frontend/frontend.py
+   cd frontend
+   npm run dev
    ```
 
 ### Docker Development
@@ -124,9 +130,9 @@ docker-compose up -d --scale file-forge=2
 
 ### Adding New Endpoints
 
-1. Create endpoint in appropriate service:
+1. Create endpoint in the API router:
    ```python
-   # file_forge/api.py
+   # backend/file_processor/api/v1/your_module.py
    from fastapi import APIRouter
    
    router = APIRouter()
@@ -138,18 +144,18 @@ docker-compose up -d --scale file-forge=2
 
 2. Register router in main app:
    ```python
-   # file_forge/main.py
-   from file_forge.api import router as api_router
+   # backend/file_processor/main.py
+   from file_processor.api.v1.your_module import router as your_router
    
-   app.include_router(api_router, prefix="/api/v1")
+   app.include_router(your_router, prefix="/api/v1")
    ```
 
 ### File Processors
 
-Create new processor in [`file_forge/processors.py`](file_forge/processors.py):
+Create new processor in [`backend/file_processor/processors/`](backend/file_processor/processors/):
 
 ```python
-from file_forge.processors import BaseProcessor
+from file_processor.processors.base import BaseProcessor
 
 class CustomProcessor(BaseProcessor):
     EXTENSIONS = ['.custom']
@@ -165,11 +171,11 @@ class CustomProcessor(BaseProcessor):
 
 ### Database Models
 
-Add models in [`file_forge/models.py`](file_forge/models.py):
+Add models in [`backend/file_processor/models/`](backend/file_processor/models/):
 
 ```python
 from sqlalchemy import Column, Integer, String, DateTime
-from file_forge.database import Base
+from file_processor.database import Base
 
 class CustomModel(Base):
     __tablename__ = "custom_table"
@@ -185,27 +191,28 @@ class CustomModel(Base):
 
 ```bash
 # Run all tests
+cd backend
 pytest
 
 # Run with coverage
-pytest --cov=file_forge --cov-report=html
+pytest --cov=file_processor --cov-report=html
 
 # Run specific test file
-pytest file_forge/tests/test_api.py -v
+pytest tests/test_api/test_files.py -v
 
 # Run specific test
-pytest file_forge/tests/test_api.py::test_upload -v
+pytest tests/test_api/test_files.py::test_upload -v
 ```
 
 ### Writing Tests
 
 ```python
-# file_forge/tests/test_example.py
+# backend/tests/test_example.py
 import pytest
 from fastapi.testclient import TestClient
 
 def test_example_endpoint():
-    from file_forge.main import app
+    from file_processor.main import app
     client = TestClient(app)
     
     response = client.get("/api/v1/example")
@@ -277,7 +284,7 @@ This runs:
 docker-compose build
 
 # Build specific service
-docker build -t fileforge/forge_backend ./forge_backend
+docker build -t fileforge/backend ./backend
 
 # Build with no cache
 docker-compose build --no-cache
@@ -335,8 +342,8 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
     depends_on:
-      - forge_backend
-      - forge_frontend
+      - backend
+      - frontend
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
       interval: 30s
@@ -344,9 +351,9 @@ services:
       retries: 3
 
   # Backend API Service
-  forge_backend:
+  backend:
     build:
-      context: ./forge_backend
+      context: ./backend
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
@@ -401,31 +408,32 @@ services:
         max-file: "5"
 
   # Frontend Service
-  forge_frontend:
+  frontend:
     build:
-      context: ./forge_frontend
+      context: ./frontend
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
       DEBUG: "false"
       HOST: 0.0.0.0
       PORT: "5000"
-      BACKEND_URL: http://forge_backend:8000
-      BACKEND_DOWNLOAD_URL: http://forge_backend:8000/download
+      BACKEND_URL: http://backend:8000
+      BACKEND_DOWNLOAD_URL: http://backend:8000/download
     ports:
       - "5000:5000"
     depends_on:
-      - forge_backend
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:5000/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  # File Forge Worker
-  file-forge:
+  # FileForge Worker
+  worker:
     build:
-      context: ./file_forge
+      context: ./backend
+      target: worker
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
@@ -572,10 +580,10 @@ networks:
 
 ```bash
 # Scale file forge workers
-docker-compose up -d --scale file-forge=4
+docker-compose up -d --scale worker=4
 
 # Scale backend instances
-docker-compose up -d --scale forge_backend=3
+docker-compose up -d --scale backend=3
 ```
 
 #### Kubernetes Scaling
@@ -801,7 +809,7 @@ echo "Restore complete"
 ```yaml
 # docker-compose.ha.yml
 services:
-  forge_backend:
+  backend:
     deploy:
       mode: replicated
       replicas: 3

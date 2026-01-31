@@ -1,6 +1,6 @@
 # Processing Pipeline Documentation
 
-This document provides detailed documentation of the Sorter file processing pipeline, including architecture, workflows, error handling, and retry logic.
+This document provides detailed documentation of the FileForge file processing pipeline, including architecture, workflows, error handling, and retry logic.
 
 ## 🔄 Pipeline Overview
 
@@ -8,7 +8,7 @@ This document provides detailed documentation of the Sorter file processing pipe
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                           SORTER PROCESSING PIPELINE                         │
+│                           FILEFORGE PROCESSING PIPELINE                     │
 └─────────────────────────────────────────────────────────────────────────────┘
 
 ┌──────────┐    ┌──────────────┐    ┌───────────────┐    ┌──────────────────┐    ┌──────────────┐
@@ -432,14 +432,14 @@ STORAGE_CONFIG = {
         "key_rotation_days": 90
     },
     "s3": {
-        "bucket": "sorter-files",
+  "bucket": "fileforge-files",
         "region": "us-east-1",
         "storage_class": "STANDARD_IA",
         "server_side_encryption": "aws:kms",
-        "kms_key_id": "alias/sorter-key"
+  "kms_key_id": "alias/fileforge-key"
     },
     "local": {
-        "base_path": "/var/sorter/files",
+  "base_path": "/var/fileforge/files",
         "permissions": 0o750
     }
 }
