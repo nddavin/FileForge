@@ -13,6 +13,18 @@ export default defineConfig({
 	},
 	projects: [
 		{ name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+		{ name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+		{ name: 'webkit', use: { ...devices['Desktop Safari'] } },
+		// mobile viewport example
+		{ name: 'mobile-chrome', use: { ...devices['Pixel 5'] } },
+		{ name: 'mobile-safari', use: { ...devices['iPhone 12'] } },
 	],
-	snapshotsDir: 'tests/visual/__snapshots__',
+		snapshotDir: 'tests/visual/__snapshots__',
+		webServer: {
+			// use Vite dev server so Playwright tests the live app during development
+			command: 'npm run dev -- --port 5173',
+			port: 5173,
+			timeout: 60_000,
+			reuseExistingServer: true,
+		},
 });
