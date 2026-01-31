@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import { fileRealtime, FileRecord } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -125,17 +125,7 @@ export function FileManagerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Subscribe to real-time updates
-  useEffect(() => {
-    const unsubscribe = fileRealtime.subscribeToFiles((payload) => {
-      console.log('Real-time update:', payload);
-      // Handle real-time updates here
-      refreshFiles();
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  // (moved below refreshFiles declaration to avoid using it before it's defined)
 
   const refreshFiles = useCallback(async () => {
     setLoading(true);
@@ -150,6 +140,50 @@ export function FileManagerProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   }, []);
+
+  // Subscribe to real-time updates (placed after refreshFiles so it's safe to reference)
+  useEffect(() => {
+    const isRefreshingRef = useRef(false);
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const scheduleRefresh = () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+
+      debounceTimer = setTimeout(async () => {
+        const attempt = async () => {
+          if (!isRefreshingRef.current) {
+            isRefreshingRef.current = true;
+            try {
+              await refreshFiles();
+            } catch (e) {
+              // errors handled in refreshFiles
+            } finally {
+              isRefreshingRef.current = false;
+            }
+          } else {
+            // If a refresh is already in progress, retry after a short delay
+            setTimeout(attempt, 100);
+          }
+        };
+
+        await attempt();
+      }, 200);
+    };
+
+    const unsubscribe = fileRealtime.subscribeToFiles((payload) => {
+      console.log('Real-time update:', payload);
+      scheduleRefresh();
+    });
+
+    return () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+      unsubscribe();
+    };
+  }, [refreshFiles]);
 
   const toggleSelection = useCallback((fileId: string) => {
     setSelectedFiles(prev => {
