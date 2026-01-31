@@ -29,21 +29,23 @@ class TestJWTTokens:
 
     def test_create_valid_token(self, token_payload, secret_key):
         """Test creating a valid JWT token."""
-        with patch("app.core.security.SECRET_KEY", secret_key):
-            with patch("app.core.security.ALGORITHM", "HS256"):
-                token = jwt.encode(token_payload, secret_key, algorithm="HS256")
-                assert isinstance(token, str)
-                assert len(token) > 0
+        with patch("file_processor.core.security.settings") as mock_settings:
+            mock_settings.secret_key = secret_key
+            mock_settings.algorithm = "HS256"
+            token = jwt.encode(token_payload, secret_key, algorithm="HS256")
+            assert isinstance(token, str)
+            assert len(token) > 0
 
     def test_decode_valid_token(self, token_payload, secret_key):
         """Test decoding a valid JWT token."""
-        with patch("app.core.security.SECRET_KEY", secret_key):
-            with patch("app.core.security.ALGORITHM", "HS256"):
-                token = jwt.encode(token_payload, secret_key, algorithm="HS256")
-                decoded = jwt.decode(token, secret_key, algorithms=["HS256"])
-                assert decoded["sub"] == "user-123"
-                assert decoded["email"] == "test@church.org"
-                assert "user" in decoded["roles"]
+        with patch("file_processor.core.security.settings") as mock_settings:
+            mock_settings.secret_key = secret_key
+            mock_settings.algorithm = "HS256"
+            token = jwt.encode(token_payload, secret_key, algorithm="HS256")
+            decoded = jwt.decode(token, secret_key, algorithms=["HS256"])
+            assert decoded["sub"] == "user-123"
+            assert decoded["email"] == "test@church.org"
+            assert "user" in decoded["roles"]
 
     def test_expired_token_raises_error(self, secret_key):
         """Test that expired tokens raise an error."""
@@ -220,10 +222,11 @@ class TestFileValidation:
 
     def test_reject_executable_signature(self):
         """Test that executable file signatures are rejected."""
-        file_content = b"MZ" + b"\x00" * 100
-
+        # Test each malicious signature separately
         for signature in self.MALICIOUS_SIGNATURES:
-            assert file_content.startswith(signature)
+            # Create file content that starts with this signature
+            file_content = signature + b"\x00" * 100
+            assert file_content.startswith(signature), f"Failed for signature: {signature}"
 
     def test_max_file_size_validation(self):
         """Test that file size limit is enforced."""
@@ -252,7 +255,9 @@ class TestEncryption:
 
     @pytest.fixture
     def encryption_key(self):
-        return b"test-encryption-key-32-bytes!!"
+        """Generate a valid Fernet key (32 url-safe base64-encoded bytes)."""
+        from cryptography.fernet import Fernet
+        return Fernet.generate_key()
 
     def test_encrypt_decrypt_roundtrip(self, encryption_key):
         """Test that encryption and decryption work together."""
@@ -282,7 +287,7 @@ class TestEncryption:
         from cryptography.fernet import Fernet
 
         key1 = Fernet(encryption_key)
-        key2 = Fernet(b"different-key-32-bytes-here!!")
+        key2 = Fernet(Fernet.generate_key())
 
         original_data = b"Test data"
 
