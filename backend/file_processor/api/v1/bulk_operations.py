@@ -1,6 +1,6 @@
 """Bulk File Operations API - Smart sorting and package management"""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 from sqlalchemy.orm import Session
@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from ...api.deps import get_current_user
 from ...core.dependencies import get_db
 from ...models.user import User
-from ...models.file import File
+from ...models.file import File, SortingRule as SortingRuleModel
 
 router = APIRouter()
 
@@ -20,7 +20,7 @@ class SortCondition(BaseModel):
     value: str | int | bool
 
 
-class SortingRule(BaseModel):
+class SortingRuleSchema(BaseModel):
     id: Optional[str] = None
     name: str
     conditions: List[SortCondition]
@@ -52,9 +52,15 @@ class BulkOptimizeRequest(BaseModel):
     church_id: str
 
 
+class TagRequest(BaseModel):
+    tags: List[str]
+
+
 @router.post("/bulk-sort")
 async def bulk_smart_sort(
-    request: BulkSortRequest, current_user: User = Depends(get_current_user)
+    request: BulkSortRequest, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """Apply AI sorting rules to bulk files"""
 
@@ -62,9 +68,9 @@ async def bulk_smart_sort(
     rules_applied = 0
 
     for file_id in request.file_ids:
-        # Get file
-        file = await File.get(file_id)
-        if not file:
+        # Get file from database
+        file_record = db.query(File).filter(File.id == file_id).first()
+        if not file_record:
             continue
 
         # Apply rules if provided
@@ -72,25 +78,24 @@ async def bulk_smart_sort(
             for rule in request.rules:
                 matches = True
                 for cond in rule.conditions:
-                    file_val = getattr(file, cond.field, None)
+                    file_val = getattr(file_record, cond.field, None)
                     if file_val != cond.value:
                         matches = False
                         break
 
                 if matches:
-                    file.folder_id = rule.target_folder
-                    await file.save()
+                    file_record.folder_id = rule.target_folder
                     rules_applied += 1
                     break
 
         # Apply manual sort
         if request.sort_by:
-            predicted_folder = predict_folder_for_file(file, request.sort_by)
+            predicted_folder = predict_folder_for_file(file_record, request.sort_by)
             if predicted_folder:
-                file.folder_id = predicted_folder
-                await file.save()
+                file_record.folder_id = predicted_folder
                 sorted_count += 1
 
+    db.commit()
     return {
         "sorted": sorted_count,
         "rules_applied": rules_applied,
@@ -100,7 +105,9 @@ async def bulk_smart_sort(
 
 @router.post("/bulk-package")
 async def bulk_create_package(
-    request: BulkPackageRequest, current_user: User = Depends(get_current_user)
+    request: BulkPackageRequest, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """Create sermon package from selected files"""
 
@@ -114,10 +121,11 @@ async def bulk_create_package(
 
     # Update all files with package_id
     for file_id in request.file_ids:
-        file = await File.get(file_id)
-        if file:
-            file.sermon_package_id = package_id
-            await file.save()
+        file_record = db.query(File).filter(File.id == file_id).first()
+        if file_record:
+            file_record.sermon_package_id = package_id
+
+    db.commit()
 
     return {
         "package_id": package_id,
@@ -129,35 +137,39 @@ async def bulk_create_package(
 
 @router.post("/bulk-move")
 async def bulk_move_files(
-    request: BulkMoveRequest, current_user: User = Depends(get_current_user)
+    request: BulkMoveRequest, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """Move files to specified folder"""
 
     moved_count = 0
 
     for file_id in request.file_ids:
-        file = await File.get(file_id)
-        if file:
-            file.folder_id = request.folder_id
-            await file.save()
+        file_record = db.query(File).filter(File.id == file_id).first()
+        if file_record:
+            file_record.folder_id = request.folder_id
             moved_count += 1
 
+    db.commit()
     return {"moved": moved_count, "message": f"Moved {moved_count} files to folder"}
 
 
 @router.post("/bulk-optimize")
 async def bulk_optimize(
-    request: BulkOptimizeRequest, current_user: User = Depends(get_current_user)
+    request: BulkOptimizeRequest, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """Queue files for quality optimization"""
 
-    from app.celery_tasks import optimize_media_task
+    from ...celery_tasks import optimize_media_task
 
     optimized_count = 0
 
     for file_id in request.file_ids:
-        file = await File.get(file_id)
-        if file and file.file_type in ["video", "audio"]:
+        file_record = db.query(File).filter(File.id == file_id).first()
+        if file_record and file_record.file_type in ["video", "audio"]:
             # Queue optimization task
             optimize_media_task.delay(file_id)
             optimized_count += 1
@@ -168,17 +180,58 @@ async def bulk_optimize(
     }
 
 
-@router.post("/rules/save")
-async def save_sorting_rule(
-    rule: SortingRule, current_user: User = Depends(get_current_user)
+@router.post("/bulk-tag")
+async def bulk_tag_files(
+    file_ids: List[str],
+    request: TagRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
-    """Save a sorting rule to database"""
+    """Add tags to multiple files"""
 
-    from app.models.file import SortingRule as SortingRuleModel
+    tagged_count = 0
 
-    # Convert to dict
+    for file_id in file_ids:
+        file_record = db.query(File).filter(File.id == file_id).first()
+        if file_record:
+            # Get existing tags or initialize empty list
+            existing_tags = file_record.tags or []
+            # Add new tags that don't exist
+            for tag in request.tags:
+                if tag not in existing_tags:
+                    existing_tags.append(tag)
+            file_record.tags = existing_tags
+            tagged_count += 1
+
+    db.commit()
+    return {
+        "tagged": tagged_count,
+        "message": f"Added tags to {tagged_count} files",
+    }
+
+
+# ============ Rules Endpoints ============
+
+@router.get("/rules")
+async def get_sorting_rules(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get all sorting rules for current user's church"""
+    rules = db.query(SortingRuleModel).all()
+    return [rule.to_dict() for rule in rules]
+
+
+@router.post("/rules")
+async def create_sorting_rule(
+    rule: SortingRuleSchema, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Create a new sorting rule"""
+
     rule_data = {
-        "church_id": current_user.church_id,
+        "church_id": current_user.church_id if hasattr(current_user, 'church_id') else "default",
         "name": rule.name,
         "conditions": [c.model_dump() for c in rule.conditions],
         "target_folder": rule.target_folder,
@@ -186,27 +239,106 @@ async def save_sorting_rule(
         "auto_apply": rule.auto_apply,
     }
 
-    if rule.id:
-        # Update existing
-        await SortingRuleModel.update(rule.id, **rule_data)
-    else:
-        # Create new
-        await SortingRuleModel.create(**rule_data)
+    new_rule = SortingRuleModel(**rule_data)
+    db.add(new_rule)
+    db.commit()
+    db.refresh(new_rule)
 
-    return {"message": "Rule saved successfully", "rule_id": rule.id}
+    return {"message": "Rule created successfully", "rule_id": str(new_rule.id)}
 
 
 @router.delete("/rules/{rule_id}")
 async def delete_sorting_rule(
-    rule_id: str, current_user: User = Depends(get_current_user)
+    rule_id: str, 
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """Delete a sorting rule"""
 
-    from app.models.file import SortingRule as SortingRuleModel
+    rule = db.query(SortingRuleModel).filter(SortingRuleModel.id == rule_id).first()
+    if not rule:
+        raise HTTPException(status_code=404, detail="Rule not found")
 
-    await SortingRuleModel.delete(rule_id)
+    db.delete(rule)
+    db.commit()
 
     return {"message": "Rule deleted successfully"}
+
+
+# ============ Files CRUD ============
+
+@router.post("/files")
+async def create_file(
+    file_data: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Create a new file record"""
+
+    file_record = File(
+        user_id=current_user.id,
+        name=file_data.get("name"),
+        path=file_data.get("path"),
+        size=file_data.get("size", 0),
+        content_type=file_data.get("content_type", "application/octet-stream"),
+        metadata=file_data.get("metadata", {}),
+        tags=file_data.get("tags", []),
+    )
+
+    db.add(file_record)
+    db.commit()
+    db.refresh(file_record)
+
+    return {"id": file_record.id, "message": "File created successfully"}
+
+
+@router.patch("/files/{file_id}")
+async def update_file(
+    file_id: str,
+    file_data: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update a file record"""
+
+    file_record = db.query(File).filter(File.id == file_id).first()
+    if not file_record:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Update fields
+    if "name" in file_data:
+        file_record.name = file_data["name"]
+    if "path" in file_data:
+        file_record.path = file_data["path"]
+    if "metadata" in file_data:
+        file_record.metadata = file_data["metadata"]
+    if "tags" in file_data:
+        file_record.tags = file_data["tags"]
+    if "folder_id" in file_data:
+        file_record.folder_id = file_data["folder_id"]
+
+    db.commit()
+    db.refresh(file_record)
+
+    return {"message": "File updated successfully", "file": file_record.to_dict()}
+
+
+@router.delete("/files/{file_id}")
+async def delete_file(
+    file_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Delete a file record"""
+
+    file_record = db.query(File).filter(File.id == file_id).first()
+    if not file_record:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    db.delete(file_record)
+    db.commit()
+
+    return {"message": "File deleted successfully"}
 
 
 # Helper function for prediction

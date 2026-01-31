@@ -29,7 +29,7 @@ import {
   Loader2,
   CheckCircle,
 } from 'lucide-react';
-import { projectId, publicAnonKey } from '/utils/supabase/info';
+import { bulkApi, filesApi } from '@/lib/api';
 import { toast } from 'sonner';
 
 // Bulk operation types
@@ -78,27 +78,7 @@ export function BulkOperationsBar() {
     { id: 'sermon_archive', name: 'Archive', description: '1080p, 10Mbps, full quality' },
   ];
 
-  // Generic bulk API call function
-  const callBulkApi = async (action: BulkAction, payload: Record<string, any>): Promise<BulkOperationResponse> => {
-    const response = await fetch(`https://${projectId}.supabase.co/functions/v1/make-server-24311ee2/bulk/${action}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${publicAnonKey}`,
-      },
-      body: JSON.stringify({
-        file_ids: Array.from(selectedFiles),
-        ...payload,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Bulk ${action} failed`);
-    }
-
-    return response.json();
-  };
-
+  // Updated bulk API call function using FastAPI backend
   const handleTag = async () => {
     if (!tagInput.trim()) {
       toast.error('Please enter at least one tag');
@@ -109,7 +89,7 @@ export function BulkOperationsBar() {
     try {
       const tags = tagInput.split(',').map(t => t.trim()).filter(Boolean);
       
-      await callBulkApi('tag', { tags });
+      await bulkApi.tag(Array.from(selectedFiles), tags);
       
       toast.success(`Added tags to ${selectedFiles.size} file(s)`, {
         description: `Tags: ${tags.join(', ')}`,
@@ -134,7 +114,7 @@ export function BulkOperationsBar() {
 
     setLoading(true);
     try {
-      await callBulkApi('move', { target_folder_id: targetFolder });
+      await bulkApi.move(Array.from(selectedFiles), targetFolder);
       
       const folder = folders.find(f => f.id === targetFolder);
       toast.success(`Moved ${selectedFiles.size} file(s)`, {
@@ -155,25 +135,15 @@ export function BulkOperationsBar() {
   const handleDelete = async () => {
     setLoading(true);
     try {
-      // Delete each file individually (existing behavior)
+      // Delete each file individually
       const deletePromises = Array.from(selectedFiles).map((fileId) =>
-        fetch(`https://${projectId}.supabase.co/functions/v1/make-server-24311ee2/files/${fileId}`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${publicAnonKey}`,
-          },
-        })
+        filesApi.delete(fileId)
       );
 
       const results = await Promise.all(deletePromises);
-      const successCount = results.filter(r => r.ok).length;
-      const failCount = selectedFiles.size - successCount;
-
-      if (failCount > 0) {
-        toast.warning(`Deleted ${successCount} file(s), ${failCount} failed`);
-      } else {
-        toast.success(`Successfully deleted ${selectedFiles.size} file(s)`);
-      }
+      const successCount = results.length;
+      
+      toast.success(`Successfully deleted ${successCount} file(s)`);
       
       setIsDeleteDialogOpen(false);
       clearSelection();
@@ -193,7 +163,7 @@ export function BulkOperationsBar() {
 
     setLoading(true);
     try {
-      await callBulkApi('optimize', { profile: optimizationProfile });
+      await bulkApi.optimize(Array.from(selectedFiles), 'default', optimizationProfile);
       
       const profile = optimizationProfiles.find(p => p.id === optimizationProfile);
       toast.success(`Optimization started for ${selectedFiles.size} file(s)`, {
