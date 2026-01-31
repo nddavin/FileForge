@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-	testDir: 'tests/visual',
+	testDir: 'tests',
 	timeout: 30_000,
 	expect: { timeout: 5000 },
 	reporter: [['html', { open: 'never' }]],
@@ -13,7 +13,15 @@ export default defineConfig({
 	},
 	projects: [
 		{ name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-		{ name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+		{
+			name: 'firefox',
+			use: {
+				...devices['Desktop Firefox'],
+				launchOptions: {
+					args: ['--disable-web-security', '--disable-features=IsolateOrigins,site-per-process'],
+				},
+			},
+		},
 		{ name: 'webkit', use: { ...devices['Desktop Safari'] } },
 		// mobile viewport example
 		{ name: 'mobile-chrome', use: { ...devices['Pixel 5'] } },
