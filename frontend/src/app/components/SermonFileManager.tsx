@@ -1,22 +1,34 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, lazy, Suspense } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs';
 import { Button } from '@/app/components/ui/button';
 import { BulkOperationsBar } from '@/app/components/BulkOperationsBar';
-import { SmartSortingRules } from '@/app/components/SmartSortingRules';
-import { RelationshipGraph } from '@/app/components/RelationshipGraph';
-import { KanbanBoard } from '@/app/components/KanbanBoard';
-import { AdvancedSearch } from '@/app/components/AdvancedSearch';
-import { CoreDashboard } from '@/app/components/CoreDashboard';
-import { SermonProcessingUI } from '@/app/components/SermonProcessingUI';
-import { WorkflowAndIntegrations } from '@/app/components/WorkflowAndIntegrations';
-import { Dashboard } from '@/app/components/Dashboard';
-import { FileUpload, SmartFileGrid } from '@/app/components/FileManagement';
 import { Upload, LogOut, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFileManager } from '@/contexts/FileManagerContext';
 import { fileStorage } from '@/lib/supabase';
 import { projectId, publicAnonKey } from '/utils/supabase/info';
 import { toast } from 'sonner';
+
+// Lazy load tab components to reduce initial bundle size
+const SmartSortingRules = lazy(() => import('@/app/components/SmartSortingRules'));
+const RelationshipGraph = lazy(() => import('@/app/components/RelationshipGraph'));
+const KanbanBoard = lazy(() => import('@/app/components/KanbanBoard'));
+const AdvancedSearch = lazy(() => import('@/app/components/AdvancedSearch'));
+const CoreDashboard = lazy(() => import('@/app/components/CoreDashboard'));
+const SermonProcessingUI = lazy(() => import('@/app/components/SermonProcessingUI'));
+const WorkflowAndIntegrations = lazy(() => import('@/app/components/WorkflowAndIntegrations'));
+const Dashboard = lazy(() => import('@/app/components/Dashboard'));
+const FileUpload = lazy(() => import('@/app/components/FileManagement').then(m => ({ default: m.FileUpload })));
+const SmartFileGrid = lazy(() => import('@/app/components/FileManagement').then(m => ({ default: m.SmartFileGrid })));
+
+// Loading fallback component
+function TabLoadingFallback() {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <div className="text-gray-500">Loading...</div>
+    </div>
+  );
+}
 
 export function SermonFileManager() {
   const { user, signOut } = useAuth();
@@ -125,39 +137,57 @@ export function SermonFileManager() {
           </div>
 
           <TabsContent value="dashboard" className="mt-6">
-            <CoreDashboard />
+            <Suspense fallback={<TabLoadingFallback />}>
+              <CoreDashboard />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="upload" className="mt-6">
-            <FileUpload />
+            <Suspense fallback={<TabLoadingFallback />}>
+              <FileUpload />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="files" className="mt-6">
-            <SmartFileGrid />
+            <Suspense fallback={<TabLoadingFallback />}>
+              <SmartFileGrid />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="processing" className="mt-6">
-            <SermonProcessingUI />
+            <Suspense fallback={<TabLoadingFallback />}>
+              <SermonProcessingUI />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="workflow" className="mt-6">
-            <WorkflowAndIntegrations />
+            <Suspense fallback={<TabLoadingFallback />}>
+              <WorkflowAndIntegrations />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="kanban" className="mt-6">
-            <KanbanBoard />
+            <Suspense fallback={<TabLoadingFallback />}>
+              <KanbanBoard />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="search" className="mt-6">
-            <AdvancedSearch />
+            <Suspense fallback={<TabLoadingFallback />}>
+              <AdvancedSearch />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="rules" className="mt-6">
-            <SmartSortingRules />
+            <Suspense fallback={<TabLoadingFallback />}>
+              <SmartSortingRules />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="relationships" className="mt-6">
-            <RelationshipGraph />
+            <Suspense fallback={<TabLoadingFallback />}>
+              <RelationshipGraph />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </main>
