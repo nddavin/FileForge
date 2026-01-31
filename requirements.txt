@@ -1,8 +1,12 @@
+# Top-level requirements file
+# Project-specific requirements are delegated to service folders
 
-# Top-level requirements file. Project-specific requirements are delegated to service folders.
-
-# Include backend dependencies
+# Backend Core Dependencies
 -r backend/requirements.txt
 
-# For frontend dependencies use `frontend/package.json`
+# Optional: ML/AI Dependencies (uncomment if needed)
+# -r backend/requirements-ml.txt
 
+# Frontend Dependencies
+# The frontend uses Node.js/npm - see frontend/package.json
+# Install with: cd frontend && npm install

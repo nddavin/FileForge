@@ -1,0 +1,18 @@
+# ML/AI Dependencies - Optional
+# Install with: pip install -r requirements.txt -r requirements-ml.txt
+
+# Core ML Libraries
+torch>=2.5.1
+torchaudio>=2.5.1
+numpy>=2.2.1
+scikit-learn>=1.6.0
+
+# NLP / Transformers
+transformers>=4.48.0
+sentence-transformers>=3.1.1
+
+# Multimedia Processing
+pillow>=11.1.0
+pytesseract>=0.3.13
+opencv-python>=4.11.0.86
+moviepy>=1.0.3
