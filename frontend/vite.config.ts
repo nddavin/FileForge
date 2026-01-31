@@ -3,6 +3,7 @@ import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     // The React and Tailwind plugins are both required for Make, even if
@@ -14,6 +15,7 @@ export default defineConfig({
     alias: {
       // Alias @ to the src directory
       '@': path.resolve(__dirname, './src'),
+      '@/utils': path.resolve(__dirname, './utils'),
     },
   },
   build: {
@@ -65,6 +67,8 @@ export default defineConfig({
     // Enable source maps for debugging
     sourcemap: true,
   },
+  // Vitest configuration
+  // @ts-expect-error - test property is added by vitest plugin
   test: {
     globals: true,
     environment: 'jsdom',

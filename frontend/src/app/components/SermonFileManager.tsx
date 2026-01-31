@@ -6,18 +6,18 @@ import { Upload, LogOut, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFileManager } from '@/contexts/FileManagerContext';
 import { fileStorage } from '@/lib/supabase';
-import { projectId, publicAnonKey } from '/utils/supabase/info';
+import { projectId, publicAnonKey } from '@/utils/supabase/info';
 import { toast } from 'sonner';
 
 // Lazy load tab components to reduce initial bundle size
-const SmartSortingRules = lazy(() => import('@/app/components/SmartSortingRules'));
-const RelationshipGraph = lazy(() => import('@/app/components/RelationshipGraph'));
-const KanbanBoard = lazy(() => import('@/app/components/KanbanBoard'));
-const AdvancedSearch = lazy(() => import('@/app/components/AdvancedSearch'));
-const CoreDashboard = lazy(() => import('@/app/components/CoreDashboard'));
-const SermonProcessingUI = lazy(() => import('@/app/components/SermonProcessingUI'));
-const WorkflowAndIntegrations = lazy(() => import('@/app/components/WorkflowAndIntegrations'));
-const Dashboard = lazy(() => import('@/app/components/Dashboard'));
+const SmartSortingRules = lazy(() => import('@/app/components/SmartSortingRules').then(m => ({ default: m.SmartSortingRules })));
+const RelationshipGraph = lazy(() => import('@/app/components/RelationshipGraph').then(m => ({ default: m.RelationshipGraph })));
+const KanbanBoard = lazy(() => import('@/app/components/KanbanBoard').then(m => ({ default: m.KanbanBoard })));
+const AdvancedSearch = lazy(() => import('@/app/components/AdvancedSearch').then(m => ({ default: m.AdvancedSearch })));
+const CoreDashboard = lazy(() => import('@/app/components/CoreDashboard').then(m => ({ default: m.CoreDashboard })));
+const SermonProcessingUI = lazy(() => import('@/app/components/SermonProcessingUI').then(m => ({ default: m.SermonProcessingUI })));
+const WorkflowAndIntegrations = lazy(() => import('@/app/components/WorkflowAndIntegrations').then(m => ({ default: m.WorkflowAndIntegrations })));
+const Dashboard = lazy(() => import('@/app/components/Dashboard').then(m => ({ default: m.Dashboard })));
 const FileUpload = lazy(() => import('@/app/components/FileManagement').then(m => ({ default: m.FileUpload })));
 const SmartFileGrid = lazy(() => import('@/app/components/FileManagement').then(m => ({ default: m.SmartFileGrid })));
 
