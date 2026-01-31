@@ -1,0 +1,2 @@
+import{j as r,G as t,H as l}from"./radix-vendor-DXnqCESz.js";import{k as e}from"./index-DHeBa6N9.js";function f({className:s,value:a,...o}){return r.jsx(t,{"data-slot":"progress",className:e("bg-primary/20 relative h-2 w-full overflow-hidden rounded-full",s),...o,children:r.jsx(l,{"data-slot":"progress-indicator",className:"bg-primary h-full w-full flex-1 transition-all",style:{transform:`translateX(-${100-(a||0)}%)`}})})}export{f as P};
+//# sourceMappingURL=progress-05Dja7FS.js.map
