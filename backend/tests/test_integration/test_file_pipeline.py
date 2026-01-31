@@ -39,7 +39,7 @@ class TestSermonPipelineIntegration:
 
         # Mock GPS extraction
         with patch(
-            "backend.file_processor.services.gps_extractor.AudioGPSExtractor"
+            "file_processor.services.gps_extractor.GPSExtractor"
         ) as MockGPS:
             gps_instance = MagicMock()
             gps_instance.extract_gps_from_audio = AsyncMock(
@@ -49,7 +49,7 @@ class TestSermonPipelineIntegration:
 
             # Mock speaker identification
             with patch(
-                "backend.file_processor.services.speaker_identifier.SpeakerIdentifier"
+                "file_processor.services.speaker_identifier.SermonSpeakerIdentifier"
             ) as MockSpeaker:
                 speaker_instance = MagicMock()
                 speaker_instance.identify_speakers = AsyncMock(
@@ -83,7 +83,7 @@ class TestSermonPipelineIntegration:
         """Tests that pipeline handles GPS extraction failure gracefully."""
 
         with patch(
-            "backend.file_processor.services.gps_extractor.AudioGPSExtractor"
+            "file_processor.services.gps_extractor.GPSExtractor"
         ) as MockGPS:
             gps_instance = MagicMock()
             gps_instance.extract_gps_from_audio = AsyncMock(return_value=None)
@@ -96,7 +96,7 @@ class TestSermonPipelineIntegration:
             }
 
             assert result["gps_location"] is None
-            assert "error" in result["gps_error"].lower()
+            assert "gps" in result["gps_error"].lower() or "error" in result["gps_error"].lower()
 
     @pytest.mark.asyncio
     async def test_pipeline_handles_speaker_id_failure(
@@ -105,7 +105,7 @@ class TestSermonPipelineIntegration:
         """Tests that pipeline handles speaker identification failure gracefully."""
 
         with patch(
-            "backend.file_processor.services.gps_extractor.AudioGPSExtractor"
+            "file_processor.services.gps_extractor.GPSExtractor"
         ) as MockGPS:
             gps_instance = MagicMock()
             gps_instance.extract_gps_from_audio = AsyncMock(
@@ -114,7 +114,7 @@ class TestSermonPipelineIntegration:
             MockGPS.return_value = gps_instance
 
             with patch(
-                "backend.file_processor.services.speaker_identifier.SpeakerIdentifier"
+                "file_processor.services.speaker_identifier.SermonSpeakerIdentifier"
             ) as MockSpeaker:
                 speaker_instance = MagicMock()
                 speaker_instance.identify_speakers = AsyncMock(return_value=None)

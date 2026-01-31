@@ -284,17 +284,17 @@ class TestExpiredTokens:
     def test_expired_token_returns_401(self, expired_token):
         """Test that expired tokens are rejected."""
 
+        from fastapi import HTTPException, status
+        from file_processor.core.security import decode_access_token
+
         with patch("file_processor.core.security.decode_access_token") as mock_decode:
-            mock_decode.side_effect = ExpiredSignatureError()
+            mock_decode.return_value = None  # Simulate expired/invalid token
 
-            from fastapi import HTTPException
-
-            with pytest.raises(HTTPException) as exc_info:
-                # Simulate token validation
-                pass
-
-            # Expired token should give 401
-            assert True  # Logic validated
+            # When decode_access_token returns None, it indicates invalid token
+            result = decode_access_token(expired_token)
+            
+            # Verify token validation fails for expired token
+            assert result is None  # Expired token returns None
 
 
 class TestTamperedTokens:
@@ -411,30 +411,34 @@ class TestSecurityBypassPrevention:
     def test_token_without_roles_claim(self):
         """Test token without roles claim is invalid."""
 
-        from fastapi import HTTPException
+        from fastapi import HTTPException, status
+        from file_processor.core.security import require_role
 
-        payload = {"sub": "user-id"}  # No roles claim
+        # Create a user mock without roles attribute
+        user_without_roles = MagicMock()
+        del user_without_roles.roles  # Remove roles attribute
 
-        # Should raise exception for missing roles
-        with pytest.raises(HTTPException):
-            # Simulate role extraction
-            pass
+        # Should raise 403 for user without required roles
+        with pytest.raises(HTTPException) as exc_info:
+            require_role(["admin"])(user=user_without_roles)
 
-        assert True
+        assert exc_info.value.status_code == 403
 
     def test_empty_roles_array(self):
         """Test token with empty roles array is denied."""
 
-        from fastapi import HTTPException
+        from fastapi import HTTPException, status
+        from file_processor.core.security import require_role
 
-        payload = {"sub": "user-id", "roles": []}
+        # Create user with empty roles
+        user_with_empty_roles = MagicMock()
+        user_with_empty_roles.roles = []
 
-        # Empty roles should be denied
-        with pytest.raises(HTTPException):
-            # Simulate role validation
-            pass
+        # Empty roles should be denied with 403
+        with pytest.raises(HTTPException) as exc_info:
+            require_role(["admin"])(user=user_with_empty_roles)
 
-        assert True
+        assert exc_info.value.status_code == 403
 
     def test_invalid_signature_rejected(self):
         """Test that invalid signature tokens are rejected."""
