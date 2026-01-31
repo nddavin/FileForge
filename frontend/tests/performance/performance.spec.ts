@@ -278,14 +278,28 @@ test.describe('Performance Tests', () => {
       const links = await page.locator('a').all();
       
       if (links.length > 0) {
-        const responseTime = await page.evaluate(async (element) => {
-          const start = performance.now();
-          element.click();
-          await new Promise(resolve => setTimeout(resolve, 0));
-          return performance.now() - start;
-        }, links[0]);
-
-        expect(responseTime).toBeLessThan(200);
+        // Get the href of the first link
+        const href = await links[0].getAttribute('href');
+        
+        if (href && !href.startsWith('http')) {
+          // Only test internal links
+          const startTime = performance.now();
+          
+          // Use Playwright's waitForNavigation to properly measure navigation time
+          await Promise.all([
+            page.waitForNavigation({ timeout: 5000 }).catch(() => {
+              // Navigation might not happen (e.g., anchor links)
+            }),
+            links[0].click()
+          ]);
+          
+          const responseTime = performance.now() - startTime;
+          
+          // Go back to original page for subsequent tests
+          await page.goBack().catch(() => {});
+          
+          expect(responseTime).toBeLessThan(200);
+        }
       }
     });
   });
