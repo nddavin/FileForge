@@ -31,6 +31,7 @@ class Settings(BaseSettings):
 
     # External services
     sentry_dsn: str = ""
+    openai_api_key: str = ""
 
     # Supabase
     supabase_url: str = ""

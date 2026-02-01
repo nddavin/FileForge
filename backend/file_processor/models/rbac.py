@@ -13,7 +13,7 @@ from sqlalchemy import (
     Table,
 )
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from backend.file_processor.database import Base
+from file_processor.database import Base
 
 # Many-to-many relationship tables
 role_permissions = Table(

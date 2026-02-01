@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Callable
 from enum import Enum
 
 import httpx
-from pydantic import BaseModel
+from pydantic import Field
 
 logger = logging.getLogger(__name__)
 
@@ -157,28 +157,41 @@ class OptimizationProfile:
 OPTIMIZATION_PROFILES = {
     "sermon_web": OptimizationProfile(
         name="sermon_web",
-        description="Web optimized video for streaming",
+        description="Web optimized video for streaming (1080p H.264)",
         video_settings={
             "codec": "libx264",
-            "scale": "1280:720",
+            "scale": "1920:1080",
             "crf": 23,
             "preset": "medium",
-            "bitrate": "2500k",
+            "bitrate": "4000k",  # Balanced bitrate for 1080p
         },
-        audio_settings={"codec": "aac", "bitrate": 128},
+        audio_settings={"codec": "aac", "bitrate": 192},  # Stereo AAC 192kbps
         output_extension="mp4",
     ),
     "sermon_podcast": OptimizationProfile(
         name="sermon_podcast",
         description="Audio only for podcast distribution",
         video_settings={},
-        audio_settings={"codec": "mp3", "bitrate": 96},
-        output_extension="mp3",
+        audio_settings={"codec": "aac", "bitrate": 128},  # AAC 128kbps stereo
+        output_extension="m4a",
     ),
     "sermon_archive": OptimizationProfile(
         name="sermon_archive",
-        description="High quality archival version",
-        video_settings={"codec": "libx264", "crf": 18, "preset": "slow"},
+        description="High quality archival version (1080p H.264)",
+        video_settings={"codec": "libx264", "scale": "1920:1080", "crf": 18, "preset": "slow"},
+        audio_settings={"codec": "aac", "bitrate": 256},  # AAC 256kbps stereo
+        output_extension="mp4",
+    ),
+    "sermon_av1": OptimizationProfile(
+        name="sermon_av1",
+        description="AV1 codec for better compression at 1080p",
+        video_settings={
+            "codec": "libaom-av1",
+            "scale": "1920:1080",
+            "crf": 30,
+            "preset": "6",  # Speed preset (0=slowest, 8=fastest)
+            "bitrate": "2500k",
+        },
         audio_settings={"codec": "aac", "bitrate": 192},
         output_extension="mp4",
     ),
@@ -596,8 +609,9 @@ class SermonProcessor:
         input_path: str,
         profile_name: str = "sermon_web",
         output_dir: Optional[str] = None,
+        max_file_size: int = 4 * 1024 * 1024 * 1024,  # 4GB default
     ) -> Optional[Dict[str, str]]:
-        """Optimize a media file using a profile"""
+        """Optimize a media file using a profile with file size constraints"""
         if profile_name not in self.profiles:
             logger.error(f"Unknown profile: {profile_name}")
             return None
@@ -615,14 +629,83 @@ class SermonProcessor:
         output_path = output_dir / output_name
 
         if profile.apply(str(input_path), str(output_path)):
+            # Check if output file is within size constraints
+            output_size = output_path.stat().st_size
+            
+            if output_size > max_file_size:
+                logger.warning(
+                    f"Optimized file ({output_size} bytes) exceeds maximum size ({max_file_size} bytes)"
+                )
+                
+                # Try to reduce bitrate if file is too large
+                logger.info("Attempting to reduce bitrate to meet size constraints")
+                reduced_profile = self._create_reduced_bitrate_profile(profile)
+                
+                # Generate new output path
+                reduced_output_name = input_path.stem + f"_{profile.name}_reduced" + profile.output_extension
+                reduced_output_path = output_dir / reduced_output_name
+                
+                if reduced_profile.apply(str(input_path), str(reduced_output_path)):
+                    reduced_size = reduced_output_path.stat().st_size
+                    
+                    if reduced_size <= max_file_size:
+                        logger.info(
+                            f"Successfully optimized to {reduced_size} bytes"
+                        )
+                        return {
+                            "input_path": str(input_path),
+                            "output_path": str(reduced_output_path),
+                            "profile": profile_name,
+                            "file_size": reduced_size,
+                            "original_size": output_size,
+                            "bitrate_reduced": True,
+                        }
+                    else:
+                        logger.error(
+                            f"Failed to meet size constraints. Reduced file size ({reduced_size} bytes) still exceeds {max_file_size} bytes"
+                        )
+                        reduced_output_path.unlink(missing_ok=True)
+                
+                output_path.unlink(missing_ok=True)
+                return None
+            
+            logger.info(f"Optimization completed. File size: {output_size} bytes")
             return {
                 "input_path": str(input_path),
                 "output_path": str(output_path),
                 "profile": profile_name,
-                "file_size": output_path.stat().st_size,
+                "file_size": output_size,
             }
 
         return None
+
+    def _create_reduced_bitrate_profile(self, base_profile: OptimizationProfile) -> OptimizationProfile:
+        """Create a profile with reduced bitrate for size optimization"""
+        reduced_profile = OptimizationProfile(
+            name=base_profile.name + "_reduced",
+            description=f"{base_profile.description} (reduced bitrate)",
+            video_settings=base_profile.video_settings.copy(),
+            audio_settings=base_profile.audio_settings.copy(),
+            output_extension=base_profile.output_extension,
+        )
+
+        # Reduce video bitrate by 30%
+        if "bitrate" in reduced_profile.video_settings:
+            original_bitrate = int(reduced_profile.video_settings["bitrate"].replace("k", ""))
+            reduced_bitrate = int(original_bitrate * 0.7)
+            reduced_profile.video_settings["bitrate"] = f"{reduced_bitrate}k"
+
+        # Reduce CRF by 3 for better compression (if available)
+        if "crf" in reduced_profile.video_settings:
+            reduced_profile.video_settings["crf"] = min(reduced_profile.video_settings["crf"] + 3, 30)
+
+        # Reduce audio bitrate by 25%
+        if "bitrate" in reduced_profile.audio_settings:
+            original_audio_bitrate = reduced_profile.audio_settings["bitrate"]
+            reduced_audio_bitrate = int(original_audio_bitrate * 0.75)
+            reduced_profile.audio_settings["bitrate"] = max(reduced_audio_bitrate, 128)  # Minimum 128kbps
+
+        return reduced_profile
 
     def optimize_batch(
         self,
