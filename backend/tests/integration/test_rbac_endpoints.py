@@ -9,6 +9,9 @@ from fastapi import HTTPException
 from jose import jwt, ExpiredSignatureError
 from datetime import datetime, timedelta, timezone
 
+# Import deps to make it available for patching
+from file_processor.api import deps
+
 
 # ====== Configuration ======
 
