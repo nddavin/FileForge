@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, List
+from typing import TYPE_CHECKING, Optional, List, Dict, Any
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -40,3 +40,15 @@ class User(Base):
     def is_team_member(self) -> bool:
         """Check if user is registered as a team member"""
         return self.team_member is not None and self.team_member.is_active
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert user to dictionary"""
+        return {
+            "id": self.id,
+            "username": self.username,
+            "email": self.email,
+            "roles": self.roles,
+            "is_active": self.is_active,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "last_login": self.last_login.isoformat() if self.last_login else None,
+        }

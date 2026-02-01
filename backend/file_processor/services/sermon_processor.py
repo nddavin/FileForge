@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Callable
 from enum import Enum
 
 import httpx
-from pydantic import Field
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 

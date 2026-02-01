@@ -11,7 +11,7 @@ import json
 import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 import openai
@@ -25,6 +25,8 @@ from file_processor.models import (
     TaskWorkflow,
     TaskAssignment,
     TaskAuditLog,
+    Skill,
+    TeamMember,
     DEFAULT_SKILLS,
     TASK_TYPE_REQUIRED_SKILLS,
 )
@@ -50,11 +52,10 @@ class AssignmentResult:
     assigned_to_id: Optional[int] = None
     assignment_score: Optional[float] = None
     reason: Optional[str] = None
-    errors: List[str] = None
+    errors: List[str] = field(default_factory=list)
     
     def __post_init__(self):
-        if self.errors is None:
-            self.errors = []
+        pass
 
 
 @dataclass

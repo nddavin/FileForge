@@ -11,6 +11,18 @@ scikit-learn>=1.6.0
 transformers>=4.48.0
 sentence-transformers>=3.1.1
 
+# OpenAI for AI-powered task assignment
+openai>=1.55.0
+
+# Whisper for local transcription
+openai-whisper>=20231117
+
+# Geocoding for GPS location tagging
+geopy>=2.4.1
+
+# YouTube/Vimeo download support
+yt-dlp>=2024.11.4
+
 # Multimedia Processing
 pillow>=11.1.0
 pytesseract>=0.3.13

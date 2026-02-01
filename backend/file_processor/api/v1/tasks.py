@@ -10,13 +10,12 @@ from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from backend.file_processor.core.dependencies import get_db
+from backend.file_processor.core.dependencies import get_db, get_current_user
 from backend.file_processor.core.rbac_security import require_permission
 from backend.file_processor.models import (
     TaskType,
     TaskStatus,
     WorkflowStatus,
-    AssignmentAlgorithm,
     TeamMember,
     TaskWorkflow,
     TaskAssignment,
