@@ -33,7 +33,15 @@ A production-ready, enterprise-grade file processing system with advanced securi
 - **Event-driven Workflows** responding to system changes
 - **Approval Workflows** with multi-level validation
 
-### 📊 **Analytics & Monitoring**
+### 👥 **Task Assignment & Team Management**
+- **AI-Powered Task Assignment** using GPT-4o-mini for optimal team matching
+- **Skill-Based Matching** algorithm for task-to-member allocation
+- **Workload Balancing** to distribute tasks evenly
+- **Team Member Profiles** with skills, workload, and performance metrics
+- **Multiple Assignment Algorithms**: AI, skill match, workload balance, random, manual
+- **Task Workflow Orchestration** with parallel processing and completion tracking
+
+### � **Analytics & Monitoring**
 - **Real-time Performance Metrics** and system health monitoring
 - **Comprehensive Logging** with structured output and search capabilities
 - **Usage Analytics** with detailed reporting and insights
@@ -59,13 +67,31 @@ A production-ready, enterprise-grade file processing system with advanced securi
 │  │  System  │    │   Checks     │    │   Extractors  │    │    Engine    │ │
 │  └──────────┘    └──────────────┘    └───────────────┘    └──────────────┘ │
 │                                                                              │
-│  ┌──────────┐    ┌──────────────┐    ┌───────────────┐                      │
-│  │   AI/ML  │◀───│   Workflow   │◀───│  Storage      │                      │
-│  │ Processor│    │   Engine     │    │  (Encrypted)  │                      │
-│  └──────────┘    └──────────────┘    └───────────────┘                      │
+│  ┌──────────┐    ┌──────────────┐    ┌───────────────┐    ┌──────────────┐ │
+│  │   AI/ML  │◀───│   Workflow   │◀───│  Storage      │◀───│    Task      │ │
+│  │ Processor│    │   Engine     │    │  (Supabase)   │    │  Assignment  │ │
+│  └──────────┘    └──────────────┘    └───────────────┘    └──────────────┘ │
+│       │               │                   │                      │          │
+│       │               ▼                   ▼                      │          │
+│       │        ┌──────────────┐    ┌───────────────┐             │          │
+│       │        │   Celery     │    │   Offline     │             │          │
+│       │        │   Workers    │    │   Backup      │             │          │
+│       │        └──────────────┘    │  (Backblaze)  │             │          │
+│       │                             └───────────────┘             │          │
+│       ▼                                                            ▼          │
+│  ┌──────────┐                                              ┌──────────────┐  │
+│  │  GPT-4   │                                              │    Team      │  │
+│  │  Mini    │                                              │  Members     │  │
+│  └──────────┘                                              └──────────────┘  │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+**Key Services:**
+- **Task Assignment Service**: AI-powered task allocation with skill-based matching
+- **Storage Sync Service**: Supabase storage management with RLS policies
+- **Offline Backup Service**: Backblaze B2 integration for disaster recovery
+- **Sermon Processor**: 5-stage pipeline for media processing
 
 ---
 
@@ -220,6 +246,18 @@ MAX_FILE_SIZE=52428800  # 50MB
 OCR_ENABLED=true
 CLASSIFICATION_ENABLED=true
 AUTO_TAGGING_ENABLED=true
+OPENAI_API_KEY=sk-...
+
+# Storage (Supabase)
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Offline Backup (Backblaze B2)
+B2_APPLICATION_KEY_ID=your-app-key-id
+B2_APPLICATION_KEY=your-app-key
+B2_BUCKET_NAME=your-bucket-name
+RCLONE_B2_CONFIG=/path/to/rclone.conf
 
 # Email (optional)
 SMTP_SERVER=smtp.gmail.com
@@ -271,6 +309,27 @@ SMTP_PORT=587
 | POST | `/api/v1/workflows` | Create workflow |
 | GET | `/api/v1/workflows` | List workflows |
 | POST | `/api/v1/workflows/{id}/execute` | Execute workflow |
+
+#### Task Assignment
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/tasks/workflows` | Create task workflow |
+| GET | `/api/v1/tasks/workflows` | List workflows |
+| GET | `/api/v1/tasks/workflows/{id}` | Get workflow details |
+| POST | `/api/v1/tasks/workflows/{id}/start` | Start workflow |
+| POST | `/api/v1/tasks/orchestrate` | Orchestrate complete workflow |
+| POST | `/api/v1/tasks/{id}/assign` | Assign task |
+| PUT | `/api/v1/tasks/{id}/status` | Update task status |
+| GET | `/api/v1/tasks/team/members` | List team members |
+| GET | `/api/v1/tasks/statistics` | Get task statistics |
+
+#### Storage
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/storage/upload` | Upload media file |
+| GET | `/api/v1/storage/stats` | Get storage statistics |
+| POST | `/api/v1/storage/cleanup` | Cleanup sermon files |
+| GET | `/api/v1/storage/policies` | Get RLS policies |
 
 ### API Examples
 

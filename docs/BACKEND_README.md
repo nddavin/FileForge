@@ -34,6 +34,8 @@ backend/
 │   │       ├── auth.py          # Authentication endpoints
 │   │       ├── files.py         # File management
 │   │       ├── sermons.py       # Sermon processing
+│   │       ├── tasks.py         # Task assignment & workflows
+│   │       ├── storage.py       # Storage management
 │   │       ├── bulk_operations.py
 │   │       ├── rbac.py          # Role management
 │   │       └── integrations.py  # External integrations
@@ -48,7 +50,8 @@ backend/
 │   │   ├── file.py              # File model
 │   │   ├── workflow.py          # Workflow model
 │   │   ├── rule.py              # Sorting rules
-│   │   └── rbac.py              # Roles & permissions
+│   │   ├── rbac.py              # Roles & permissions
+│   │   └── task_assignment.py   # Task, TeamMember, Skill models
 │   ├── schemas/
 │   │   ├── __init__.py
 │   │   └── user.py              # Pydantic schemas
@@ -61,19 +64,14 @@ backend/
 │   │   ├── sorter.py            # Smart sorting (FileForge sorting engine)
 │   │   ├── supabase.py          # Supabase integration
 │   │   ├── workflow_engine.py   # Workflow orchestration
+│   │   ├── task_assignment.py   # AI-powered task assignment
+│   │   ├── storage_sync.py      # Supabase storage sync
+│   │   ├── offline_backup.py    # Backblaze B2 backup
 │   │   └── integrations/        # Third-party integrations
-│   │       ├── base.py
-│   │       ├── compliance.py
-│   │       ├── docusign.py
-│   │       ├── dynamics365.py
-│   │       ├── erp.py
-│   │       ├── ha.py
-│   │       ├── monitoring.py
-│   │       ├── salesforce.py
-│   │       ├── slack.py
-│   │       ├── teams.py
-│   │       ├── user_experience.py
-│   │       └── webhook.py
+│   ├── queue/                   # Celery task queues
+│   │   ├── __init__.py          # Celery app initialization
+│   │   ├── backup_tasks.py      # Backup tasks
+│   │   └── task_assignment_tasks.py  # Workflow orchestration
 │   ├── crud/
 │   │   ├── __init__.py
 │   │   └── user.py              # User CRUD operations
@@ -81,9 +79,9 @@ backend/
 │   ├── utils/                   # Helper functions
 │   ├── processors/              # File format processors
 │   └── tests/                   # Unit tests
-├── celery_tasks/                # Celery background tasks
-│   ├── rss_monitor.py
-│   └── sermon_workflow.py
+├── celery_tasks/                # Legacy Celery tasks
+│   ├── rss_monitor.py           # RSS feed monitoring
+│   └── sermon_workflow.py       # Sermon processing workflow
 ├── migrations/                  # Alembic migrations
 │   └── *.sql
 ├── Dockerfile                   # Docker container
@@ -99,6 +97,32 @@ backend/
 |--------|----------|-------------|
 | POST | `/api/v1/auth/login` | OAuth2 password login |
 | POST | `/api/v1/auth/register` | User registration |
+
+### Task Assignment (`/api/v1/tasks`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/tasks/workflows` | Create a new task workflow |
+| GET | `/api/v1/tasks/workflows` | List all workflows |
+| GET | `/api/v1/tasks/workflows/{id}` | Get workflow details |
+| POST | `/api/v1/tasks/workflows/{id}/start` | Start workflow execution |
+| POST | `/api/v1/tasks/orchestrate` | Orchestrate complete workflow |
+| POST | `/api/v1/tasks/{task_id}/assign` | Assign task to team member |
+| PUT | `/api/v1/tasks/{task_id}/status` | Update task status |
+| GET | `/api/v1/tasks/{task_id}` | Get task details |
+| GET | `/api/v1/tasks/` | List tasks |
+| GET | `/api/v1/tasks/team/members` | List team members |
+| GET | `/api/v1/tasks/team/members/{id}` | Get team member details |
+| GET | `/api/v1/tasks/statistics` | Get task statistics |
+
+### Storage (`/api/v1/storage`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/storage/upload` | Upload media file |
+| GET | `/api/v1/storage/stats` | Get storage statistics |
+| POST | `/api/v1/storage/cleanup` | Cleanup sermon files |
+| GET | `/api/v1/storage/policies` | Get RLS policies |
 
 ### Files (`/api/v1/files`)
 
@@ -242,6 +266,106 @@ print(settings.database_url)  # Database connection string
 | Role | User roles (admin, manager, user) |
 | Permission | Granular permissions (files:upload, files:view) |
 | AuditLog | Action logging for compliance |
+
+## Task Assignment System
+
+### Overview
+
+The task assignment system (`services/task_assignment.py`) provides skill-based task allocation to team members using AI-powered matching.
+
+### Assignment Algorithms
+
+| Algorithm | Description |
+|-----------|-------------|
+| `ai_matching` | OpenAI GPT-4o-mini for optimal assignment |
+| `skill_match` | Highest skill match score |
+| `workload_balance` | Lowest current workload |
+| `random` | Random assignment (fallback) |
+| `manual` | Manual team member selection |
+
+### Task Types
+
+| Type | Description | Required Skills |
+|------|-------------|----------------|
+| TRANSCRIPTION | Whisper AI transcription | whisper_transcription, fast_transcription |
+| VIDEO_PROCESSING | FFmpeg video editing | ffmpeg_video_processing, premiere_video_editing |
+| LOCATION_TAGGING | GPS metadata extraction | exiftool_metadata, gps_location_tagging |
+| ARTWORK_QUALITY | Quality assurance | artwork_design, quality_assurance |
+| METADATA_AI | AI metadata extraction | ai_metadata_extraction |
+| THUMBNAIL_GENERATION | Thumbnail creation | thumbnail_generation, artwork_design |
+| SOCIAL_CLIP | Social media clips | social_media_clip_creation, ffmpeg_video_processing |
+
+### Task Workflow States
+
+| Status | Description |
+|--------|-------------|
+| CREATED | Workflow/task created |
+| PENDING | Waiting for assignment |
+| ASSIGNED | Assigned to team member |
+| IN_PROGRESS | Being processed |
+| COMPLETED | Successfully finished |
+| FAILED | Processing failed |
+| CANCELLED | Manually cancelled |
+
+### Workflow Status
+
+| Status | Description |
+|--------|-------------|
+| CREATED | Initial state |
+| INTAKE | Processing uploaded files |
+| PROCESSING | Tasks being executed |
+| COMPLETED | All tasks complete |
+| PARTIAL_FAILURE | Some tasks failed |
+| FAILED | All tasks failed |
+
+### Team Members
+
+Team members have:
+- `team_role`: EDITOR, PROCESSOR, ADMIN, TRANSCriber
+- `skills`: List of Skill objects
+- `current_workload`: Active tasks count
+- `max_concurrent_tasks`: Task limit
+- `workload_score`: Normalized workload (0-1)
+
+## Storage Sync Service
+
+### Buckets
+
+| Bucket | Type | Description |
+|--------|------|-------------|
+| sermon-audio | Private | Optimized audio files |
+| sermon-video | Private | Optimized video files |
+| sermon-transcripts | Private | Transcripts and metadata |
+| sermon-thumbnails | Public | Video thumbnails |
+| sermon-artwork | Private | Cover images |
+
+### Features
+
+- Automatic RLS policy generation
+- Media upload with MIME type validation
+- Signed URL generation for private files
+- Offline backup to Backblaze B2
+- Usage statistics tracking
+
+### Storage RBAC
+
+RLS policies support:
+- User-owned file access
+- Role-based access (admin, manager)
+- Public bucket read access
+- Audit logging for compliance
+
+## Offline Backup
+
+### Backblaze B2 Integration
+
+The offline backup service (`services/offline_backup.py`) provides:
+
+- Cold storage backup with unlimited retention
+- Soft delete with versioning support
+- Disaster recovery restoration
+- Batch sermon file backup
+- rclone configuration verification
 
 ## RBAC Security
 
